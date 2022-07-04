@@ -5,7 +5,7 @@
   "description": "An application to practice what I've learned about React + Node.",
   "main": "index.js",
   "scripts": {
-    "build": "cd frontend && npm run build",
+    "build": "cd frontend && npm install && npm run build",
     "client": "cd frontend && npm start",
     "dev": "concurrently \"npm run client\" \"npm run server\"",
     "server": "nodemon index.js",
