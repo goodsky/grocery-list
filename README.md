@@ -1,6 +1,6 @@
-# Super List
+# Grocery List
 
-An application to practice what I've learned about React + Node.
+A little grocery list tool I made to practice what I've learned about React + Node.
 
 ## Tools
 
@@ -8,8 +8,10 @@ Here are the tools I'm using. Consider this an incomplete list since I'll likely
 
 - Concurrently: run multiple npm scripts simultaneously
 - Create-React-App: bootstrapping the React frontend project
+- Cloud Flare: DNS
 - ESLint: code quality
 - Express: Node.js web host
+- Heroku: simple cloud hosting
 - Nodemon: host backend during development with hot reloading
 - Prettier: code formatting
 
