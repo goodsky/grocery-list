@@ -14,7 +14,7 @@ client.connect()
 
 module.exports = {
     query: async (text, params) => {
-        logger.log('DB QUERY> ', text)
+        logger.info('DB QUERY> ', text)
         try {
             const result = await client.query(text, params)
             return {

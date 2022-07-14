@@ -11,7 +11,7 @@ router.get('/', async (request, response) => {
         foo: allmyfoos,
     }
 
-    logger.log('Returning message', hello.message)
+    logger.info('Returning message', hello.message)
     response.status(200).json(hello)
 })
 

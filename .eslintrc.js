@@ -3,6 +3,7 @@ module.exports = {
         commonjs: true,
         es2021: true,
         node: true,
+        mocha: true,
     },
     extends: ['airbnb-base', 'prettier'],
     parserOptions: {
@@ -11,5 +12,5 @@ module.exports = {
     rules: {
         'prettier/prettier': 'error',
     },
-    plugins: ['prettier'],
+    plugins: ['mocha', 'prettier'],
 }
