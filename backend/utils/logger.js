@@ -1,7 +1,11 @@
 /* eslint-disable no-console */
 
+const config = require('./config')
+
 const info = (...params) => {
-    console.log(params)
+    if (config.NODE_ENV !== 'test') {
+        console.log(params)
+    }
 }
 
 const error = (...params) => {

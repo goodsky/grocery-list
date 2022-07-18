@@ -9,6 +9,7 @@ router.get('/', async (request, response) => {
     const hello = {
         message: `Hello World! This time now is ${new Date()}.`,
         foo: allmyfoos,
+        secret: 42,
     }
 
     logger.info('Returning message', hello.message)

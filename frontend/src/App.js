@@ -3,23 +3,23 @@ import { useEffect, useState } from 'react'
 import fooService from './services/foo'
 
 function App() {
-  const [foo, setFoo] = useState('')
+    const [foo, setFoo] = useState('')
 
-  useEffect(() => {
-    ;(async () => {
-      const foo = await fooService.getFoo()
-      setFoo(foo)
-    })()
-  }, [])
+    useEffect(() => {
+        ;(async () => {
+            const foo = await fooService.getFoo()
+            setFoo(foo)
+        })()
+    }, [])
 
-  return (
-    <div className="App">
-      <h1>Welcome to Super List!</h1>
-      <div>
-        <h2>Message = {foo}</h2>
-      </div>
-    </div>
-  )
+    return (
+        <div className="App">
+            <h1>Welcome to Super List!</h1>
+            <div>
+                <h2 data-testid="message">Message = {foo}</h2>
+            </div>
+        </div>
+    )
 }
 
 export default App
