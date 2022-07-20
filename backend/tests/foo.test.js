@@ -25,7 +25,6 @@ describe('Foo Controller', () => {
         fooModelMock.expects('getFoo').once().resolves([1, 2, 3])
 
         const response = await supertest(app).get('/api/foo').expect(200)
-        console.log(response.body)
         assert.equal(response.body.secret, 42)
 
         fooModelMock.verify()

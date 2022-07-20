@@ -1,0 +1,11 @@
+{
+    "rest-client.environmentVariables": {
+        "$shared": {},
+        "localhost": {
+            "host": "http://localhost:8080"
+        },
+        "service": {
+            "host": "https://groceries.skylers.app"
+        }
+    }
+}

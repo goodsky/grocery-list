@@ -1,0 +1,14 @@
+
+### Get Users
+GET {{host}}/api/users
+
+### Add User
+# @prompt username
+# @prompt password
+POST {{host}}/api/users
+Content-Type: application/json
+
+{
+    "username": "{{username}}",
+    "password": "{{password}}"
+}
