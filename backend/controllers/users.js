@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const Router = require('express')
 
 const config = require('../utils/config')
@@ -37,8 +38,34 @@ router.post('/', async (request, response) => {
     response.status(201).json(newUser)
 })
 
-// router.post('/login', async (request, response) => {
-//     const { username, password } = request.body
-// })
+router.post('/login', async (request, response) => {
+    const { username, password } = request.body
+
+    if (!username || !password) {
+        response.status(400).json({ error: 'must supply username and password' })
+        return
+    }
+
+    const user = await userDb.getUserByUsername(username)
+    logger.info('got user', user)
+
+    const passwordsMatch = user && (await bcrypt.compare(password, user.passwordHash))
+    if (!user || !passwordsMatch) {
+        response.status(401).json({ error: 'username or password is incorrect' })
+        return
+    }
+
+    const payload = {
+        id: user.id,
+        username: user.username,
+        joinedDate: user.joinedDate,
+        isAdmin: user.isAdmin,
+    }
+
+    logger.info('Successful login for user', payload)
+
+    const token = jwt.sign(payload, config.JWT_SECRET)
+    response.status(200).json({ ...payload, token })
+})
 
 module.exports = router

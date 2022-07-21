@@ -68,8 +68,15 @@ const getUserByUsername = async (username) => {
         WHERE ${usernameColumn} = '${username}'`
     )
 
-    logger.info('GOT USERS BY USERNAME', result)
-    return result.rows
+    if (result.rows.length === 0) {
+        return null
+    }
+
+    if (result.rows.length === 1) {
+        return convertRowToUser(result.rows[0])
+    }
+
+    throw Error(`unexpected query result : expected exactly one user with username ${username}`)
 }
 
 module.exports = {
