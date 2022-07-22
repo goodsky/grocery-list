@@ -23,8 +23,8 @@ const init = async () => {
 }
 
 const convertRowToUser = (row) => {
-    if (!row || !row.id || !row.username) {
-        throw Error('Attempted to convert invalid row to User')
+    if (!row) {
+        throw Error('Attempted to convert empty row to User')
     }
 
     return {
@@ -39,13 +39,18 @@ const convertRowToUser = (row) => {
 const addUser = async (username, passwordHash, joinedDate, isAdmin) => {
     await init()
 
-    const result = await db.query(
-        `INSERT INTO ${tablename} (${usernameColumn}, ${passwordHashColumn}, ${joinedDateColumn}, ${isAdminColumn}) VALUES($1, $2, $3, $4)
-        RETURNING ${idColumn}, ${usernameColumn}, ${joinedDateColumn}, ${isAdminColumn}`,
-        [username, passwordHash, joinedDate, isAdmin]
+    const rows = await db.insert(
+        tablename,
+        {
+            [usernameColumn]: username,
+            [passwordHashColumn]: passwordHash,
+            [joinedDateColumn]: joinedDate,
+            [isAdminColumn]: isAdmin,
+        },
+        [idColumn, usernameColumn, joinedDateColumn, isAdminColumn]
     )
 
-    return convertRowToUser(result.rows[0])
+    return convertRowToUser(rows[0])
 }
 
 const getUsers = async () => {
@@ -63,7 +68,8 @@ const getUserByUsername = async (username) => {
 
     const result = await db.query(
         `SELECT ${idColumn}, ${usernameColumn}, ${passwordHashColumn}, ${joinedDateColumn}, ${isAdminColumn} FROM ${tablename}
-        WHERE ${usernameColumn} = '${username}'`
+        WHERE ${usernameColumn} = $1`,
+        [username]
     )
 
     if (result.rows.length === 0) {

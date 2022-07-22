@@ -60,7 +60,6 @@ router.post('/login', async (request, response) => {
     }
 
     const user = await userDb.getUserByUsername(username)
-    logger.info('logging in', user)
 
     const passwordsMatch = user && (await bcrypt.compare(password, user.passwordHash))
     if (!user || !passwordsMatch) {
