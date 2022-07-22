@@ -24,7 +24,7 @@ router.get('/', async (request, response) => {
 
     const users = await userDb.getUsers()
 
-    logger.info('Read', users.length, 'users')
+    logger.info('Read users count', users.length)
     response.status(200).json(users)
 })
 
@@ -42,11 +42,16 @@ router.post('/', async (request, response) => {
     }
 
     const passwordHash = await bcrypt.hash(password, config.SALT_ROUNDS)
-    const joinedDate = new Date()
-    const isAdmin = username === defaultAdminUsername
+
+    const user = {
+        username,
+        passwordHash,
+        joinedDate: new Date(),
+        isAdmin: username === defaultAdminUsername,
+    }
 
     logger.info('Adding new user', username)
-    const newUser = await userDb.addUser(username, passwordHash, joinedDate, isAdmin)
+    const newUser = await userDb.addUser(user)
 
     response.status(201).json(newUser)
 })

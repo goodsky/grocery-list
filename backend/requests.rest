@@ -27,3 +27,21 @@ Content-Type: application/json
 ### Get Users
 GET {{host}}/api/users
 Authorization: Bearer {{token}}
+
+### Add Grocery
+
+POST {{host}}/api/groceries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "Test Item",
+    "aliases": [ "Test", "Test1", "TestOne", "Test One" ],
+    "sections": [ "Test Section", "Cheese" ],
+    "units": "foo"
+}
+
+### Get Groceries
+GET {{host}}/api/groceries
+Authorization: Bearer {{token}}
+Content-Type: application/json

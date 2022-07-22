@@ -36,16 +36,16 @@ const convertRowToUser = (row) => {
     }
 }
 
-const addUser = async (username, passwordHash, joinedDate, isAdmin) => {
+const addUser = async (user) => {
     await init()
 
     const rows = await db.insert(
         tablename,
         {
-            [usernameColumn]: username,
-            [passwordHashColumn]: passwordHash,
-            [joinedDateColumn]: joinedDate,
-            [isAdminColumn]: isAdmin,
+            [usernameColumn]: user.username,
+            [passwordHashColumn]: user.passwordHash,
+            [joinedDateColumn]: user.joinedDate,
+            [isAdminColumn]: user.isAdmin,
         },
         [idColumn, usernameColumn, joinedDateColumn, isAdminColumn]
     )
@@ -76,11 +76,11 @@ const getUserByUsername = async (username) => {
         return null
     }
 
-    if (result.rows.length === 1) {
-        return convertRowToUser(result.rows[0])
+    if (result.rows.length > 1) {
+        throw Error(`unexpected query result : expected exactly one user with username = '${username}'`)
     }
 
-    throw Error(`unexpected query result : expected exactly one user with username ${username}`)
+    return convertRowToUser(result.rows[0])
 }
 
 module.exports = {
