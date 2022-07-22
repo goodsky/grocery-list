@@ -10,6 +10,7 @@ Content-Type: application/json
 }
 
 ### Login as User
+# @name login
 # @prompt username
 # @prompt password
 POST {{host}}/api/users/login
@@ -20,5 +21,9 @@ Content-Type: application/json
     "password": "{{password}}"
 }
 
+###
+@token = {{login.response.body.token}}
+
 ### Get Users
 GET {{host}}/api/users
+Authorization: Bearer {{token}}

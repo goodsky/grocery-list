@@ -9,6 +9,17 @@ const userDb = require('../models/user')
 const router = Router()
 
 router.get('/', async (request, response) => {
+    const { claims } = request
+    if (!claims) {
+        response.status(401).json({ error: 'user is not authenticated' })
+        return
+    }
+
+    if (!claims.isAdmin) {
+        response.status(403).json({ error: 'user cannot enumerate users' })
+        return
+    }
+
     const users = await userDb.getUsers()
 
     logger.info('Read', users.length, 'users')
@@ -64,7 +75,7 @@ router.post('/login', async (request, response) => {
 
     logger.info('Successful login for user', payload)
 
-    const token = jwt.sign(payload, config.JWT_SECRET)
+    const token = jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRATION })
     response.status(200).json({ ...payload, token })
 })
 

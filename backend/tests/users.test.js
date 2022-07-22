@@ -5,6 +5,7 @@ const supertest = require('supertest')
 
 const app = require('../app')
 const config = require('../utils/config')
+const helpers = require('./helpers')
 const userDb = require('../models/user')
 
 describe('Users Controller', () => {
@@ -12,7 +13,18 @@ describe('Users Controller', () => {
         sinon.restore()
     })
 
-    it('should return all users', async () => {
+    it('should not return users if not authenticated', async () => {
+        await supertest(app).get('/api/users').expect(401)
+    })
+
+    it('should not return users if not authenticated', async () => {
+        await supertest(app)
+            .get('/api/users')
+            .set('Authorization', helpers.getAuthHeader('notadmin', false))
+            .expect(403)
+    })
+
+    it('should return all users when authenticated as admin', async () => {
         const getUsersStub = sinon.stub(userDb, 'getUsers')
         getUsersStub.resolves([
             {
@@ -25,7 +37,11 @@ describe('Users Controller', () => {
             },
         ])
 
-        const response = await supertest(app).get('/api/users').expect(200)
+        const response = await supertest(app)
+            .get('/api/users')
+            .set('Authorization', helpers.getAuthHeader('isadmin', true))
+            .expect(200)
+
         assert(getUsersStub.calledOnce)
         assert.equal(response.body.length, 2)
     })
