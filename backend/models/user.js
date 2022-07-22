@@ -1,7 +1,5 @@
 const db = require('../utils/db')
 
-const logger = require('../utils/logger')
-
 const tablename = 'users'
 const idColumn = 'id'
 const usernameColumn = 'username'
@@ -12,14 +10,14 @@ const joinedDateColumn = 'joined'
 let hasInit = false
 const init = async () => {
     if (!hasInit) {
-        await db.query(
-            `CREATE TABLE IF NOT EXISTS ${tablename}(
-            ${idColumn} SERIAL,
-            ${usernameColumn} TEXT PRIMARY KEY,
-            ${passwordHashColumn} TEXT,
-            ${joinedDateColumn} TIMESTAMP WITH TIME ZONE,
-            ${isAdminColumn} BOOLEAN)`
-        )
+        await db.createTable(tablename, {
+            [idColumn]: 'SERIAL',
+            [usernameColumn]: 'TEXT PRIMARY KEY',
+            [passwordHashColumn]: 'TEXT',
+            [joinedDateColumn]: 'TIMESTAMP WITH TIME ZONE',
+            [isAdminColumn]: 'BOOLEAN',
+        })
+
         hasInit = true
     }
 }

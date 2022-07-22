@@ -8,6 +8,8 @@ const userDb = require('../models/user')
 
 const router = Router()
 
+const defaultAdminUsername = 'admin'
+
 router.get('/', async (request, response) => {
     const { claims } = request
     if (!claims) {
@@ -41,7 +43,7 @@ router.post('/', async (request, response) => {
 
     const passwordHash = await bcrypt.hash(password, config.SALT_ROUNDS)
     const joinedDate = new Date()
-    const isAdmin = false
+    const isAdmin = username === defaultAdminUsername
 
     logger.info('Adding new user', username)
     const newUser = await userDb.addUser(username, passwordHash, joinedDate, isAdmin)
@@ -58,7 +60,7 @@ router.post('/login', async (request, response) => {
     }
 
     const user = await userDb.getUserByUsername(username)
-    logger.info('got user', user)
+    logger.info('logging in', user)
 
     const passwordsMatch = user && (await bcrypt.compare(password, user.passwordHash))
     if (!user || !passwordsMatch) {

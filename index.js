@@ -7,5 +7,5 @@ const PORT = process.env.PORT || 8080
 
 const server = http.createServer(app)
 server.listen(PORT, () => {
-    logger.info(`super-list has started on port ${PORT}`)
+    logger.info(`grocery-list has started on port ${PORT}`)
 })

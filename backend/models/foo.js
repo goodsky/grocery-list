@@ -6,18 +6,15 @@ const messageColumn = 'message'
 
 let hasInit = false
 const init = async () => {
-    await db.query(
-        `CREATE TABLE IF NOT EXISTS ${tablename}(
-        ${idColumn} SERIAL,
-        ${messageColumn} TEXT
-    )`
-    )
+    await db.createTable(tablename, {
+        [idColumn]: 'SERIAL',
+        [messageColumn]: 'TEXT',
+    })
 
-    await db.query(
-        `INSERT INTO ${tablename}(${messageColumn})
-        VALUES($1)`,
-        [`This Database was initialized on ${new Date()}`]
-    )
+    await db.insert(tablename, {
+        [messageColumn]: `This Database was initialized on ${new Date().toString()}`,
+    })
+
     hasInit = true
 }
 

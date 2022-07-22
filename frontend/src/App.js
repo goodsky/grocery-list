@@ -7,8 +7,10 @@ function App() {
 
     useEffect(() => {
         ;(async () => {
-            const foo = await fooService.getFoo()
-            setFoo(foo)
+            const message = await fooService.getFoo()
+            console.log('foo is', foo)
+            console.log('setting foo', message)
+            setFoo(message)
         })()
     }, [])
 

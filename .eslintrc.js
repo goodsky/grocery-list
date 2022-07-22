@@ -11,6 +11,7 @@ module.exports = {
     },
     rules: {
         'prettier/prettier': 'error',
+        'no-plusplus': 'off',
     },
     plugins: ['mocha', 'prettier'],
 }

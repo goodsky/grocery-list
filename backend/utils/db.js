@@ -1,32 +1,37 @@
-const { Client } = require('pg')
+const pgWrapper = require('./pgWrapper')
 
-const config = require('./config')
-const logger = require('./logger')
+const createTable = async (tablename, tableDefinition) => {
+    const columnString = Object.entries(tableDefinition)
+        .map(([name, type]) => `${name} ${type}`)
+        .reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)
 
-class DbQueryFailed extends Error {
-    constructor(message) {
-        super(message)
-        this.name = 'DbQueryFailed'
-    }
+    const queryString = `CREATE TABLE IF NOT EXISTS ${tablename} (${columnString})`
+    await pgWrapper.query(queryString)
 }
 
-const client = new Client({
-    connectionString: config.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false,
-    },
-})
-client.connect()
+const insert = async (tablename, row, returning) => {
+    const columns = Object.keys(row)
+    const values = Object.values(row)
 
-const query = async (text, params) => {
-    try {
-        return await client.query(text, params)
-    } catch (ex) {
-        logger.error('DB query failed: ', text, ex)
-        throw new DbQueryFailed(ex.message)
-    }
+    const columnString = columns.reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)
+    const valuesString = values
+        .map((value, index) => `$${index + 1}`)
+        .reduce((prev, nextValue) => `${prev}, ${nextValue}`)
+
+    const returningString = !returning ? null : returning.reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)
+
+    const queryString = `INSERT INTO ${tablename} (${columnString}) VALUES(${valuesString})${
+        !returningString ? '' : ` RETURNING ${returningString}`
+    }`
+
+    const result = await pgWrapper.query(queryString, values)
+    return result.rows
 }
+
+const query = async (text, params) => pgWrapper.query(text, params)
 
 module.exports = {
+    createTable,
+    insert,
     query,
 }
