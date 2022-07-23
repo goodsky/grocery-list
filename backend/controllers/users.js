@@ -4,30 +4,22 @@ const Router = require('express')
 
 const config = require('../utils/config')
 const logger = require('../utils/logger')
+const middleware = require('../utils/middleware')
 const userDb = require('../models/user')
 
 const router = Router()
 
 const defaultAdminUsername = 'admin'
 
-router.get('/', async (request, response) => {
-    const { claims } = request
-    if (!claims) {
-        response.status(401).json({ error: 'user is not authenticated' })
-        return
-    }
-
-    if (!claims.isAdmin) {
-        response.status(403).json({ error: 'user cannot enumerate users' })
-        return
-    }
-
+// GET /api/users
+router.get('/', middleware.tokenAdminRequired, async (request, response) => {
     const users = await userDb.getUsers()
 
     logger.info('Read users count', users.length)
     response.status(200).json(users)
 })
 
+// POST /api/users
 router.post('/', async (request, response) => {
     const { username, password } = request.body
 
@@ -56,6 +48,7 @@ router.post('/', async (request, response) => {
     response.status(201).json(newUser)
 })
 
+// POST /api/users/login
 router.post('/login', async (request, response) => {
     const { username, password } = request.body
 

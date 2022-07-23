@@ -1,18 +1,13 @@
 const Router = require('express')
 
 const logger = require('../utils/logger')
+const middleware = require('../utils/middleware')
 const groceryDb = require('../models/grocery')
 
 const router = Router()
 
 // GET /api/groceries
-router.get('/', async (request, response) => {
-    const { claims } = request
-    if (!claims) {
-        response.status(401).json({ error: 'user is not authenticated' })
-        return
-    }
-
+router.get('/', middleware.tokenRequired, async (request, response) => {
     const groceries = await groceryDb.getGroceryItems()
 
     logger.info('Read groceries count', groceries.length)
@@ -20,18 +15,7 @@ router.get('/', async (request, response) => {
 })
 
 // POST /api/groceries
-router.post('/', async (request, response) => {
-    const { claims } = request
-    if (!claims) {
-        response.status(401).json({ error: 'user is not authenticated' })
-        return
-    }
-
-    if (!claims.isAdmin) {
-        response.status(403).json({ error: 'user cannot add groceries' })
-        return
-    }
-
+router.post('/', middleware.tokenAdminRequired, async (request, response) => {
     const { name, aliases, sections, units } = request.body
     if (!name || !Array.isArray(aliases) || !Array.isArray(sections)) {
         response.status(400).json({ error: 'invalid input' })

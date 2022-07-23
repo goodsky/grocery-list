@@ -41,8 +41,37 @@ const tokenExtractor = (request, response, next) => {
     next()
 }
 
+const tokenRequired = (request, response, next) => {
+    const { claims } = request
+
+    if (!claims) {
+        response.status(401).json({ error: 'user is not authenticated' })
+        return
+    }
+
+    next()
+}
+
+const tokenAdminRequired = (request, response, next) => {
+    const { claims } = request
+
+    if (!claims) {
+        response.status(401).json({ error: 'user is not authenticated' })
+        return
+    }
+
+    if (!claims.isAdmin) {
+        response.status(403).json({ error: 'user cannot enumerate users' })
+        return
+    }
+
+    next()
+}
+
 module.exports = {
     errorHandler,
     requestLogger,
     tokenExtractor,
+    tokenRequired,
+    tokenAdminRequired,
 }
