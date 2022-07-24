@@ -35,13 +35,36 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "name": "Test Item",
-    "aliases": [ "Test", "Test1", "TestOne", "Test One" ],
-    "sections": [ "Test Section", "Cheese" ],
-    "units": "foo"
+    "name": "Eggs",
+    "aliases": [],
+    "sections": [ "Eggs and Yogurt" ],
+    "units": "dozen"
 }
 
 ### Get Groceries
 GET {{host}}/api/groceries
 Authorization: Bearer {{token}}
+
+### Get Grocery
+# @prompt id
+GET {{host}}/api/groceries/{{id}}
+Authorization: Bearer {{token}}
+
+### Update Grocery
+# @prompt id
+PUT {{host}}/api/groceries/{{id}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
+
+{
+    "id": {{id}},
+    "name": "Updated Test Item",
+    "aliases": [ "Test", "Test1", "TestOne", "Test One", "Updated" ],
+    "sections": [ "Test Section", "Cheese" ],
+    "units": "bar"
+}
+
+### Delete Grocery
+# @prompt id
+DELETE {{host}}/api/groceries/{{id}}
+Authorization: Bearer {{token}}

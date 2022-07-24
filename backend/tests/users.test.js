@@ -13,41 +13,6 @@ describe('Users Controller', () => {
         sinon.restore()
     })
 
-    describe('GET users', () => {
-        it('should not return users if not authenticated', async () => {
-            await supertest(app).get('/api/users').expect(401)
-        })
-
-        it('should not return users if not authenticated', async () => {
-            await supertest(app)
-                .get('/api/users')
-                .set('Authorization', helpers.getAuthHeader('notadmin', false))
-                .expect(403)
-        })
-
-        it('should return all users when authenticated as admin', async () => {
-            const getUsersStub = sinon.stub(userDb, 'getUsers')
-            getUsersStub.resolves([
-                {
-                    id: 1,
-                    username: 'first',
-                },
-                {
-                    id: 2,
-                    username: 'second',
-                },
-            ])
-
-            const response = await supertest(app)
-                .get('/api/users')
-                .set('Authorization', helpers.getAuthHeader('isadmin', true))
-                .expect(200)
-
-            assert(getUsersStub.calledOnce)
-            assert.equal(response.body.length, 2)
-        })
-    })
-
     describe('POST user', () => {
         it('should add a user', async () => {
             const body = {
@@ -95,6 +60,38 @@ describe('Users Controller', () => {
             }
 
             await supertest(app).post('/api/users').send(body).expect(400)
+        })
+    })
+
+    describe('GET users', () => {
+        it('should not return users if not authenticated', async () => {
+            await supertest(app).get('/api/users').expect(401)
+        })
+
+        it('should not return users if not authenticated', async () => {
+            await supertest(app).get('/api/users').set('Authorization', helpers.getJwt('notadmin', false)).expect(403)
+        })
+
+        it('should return all users when authenticated as admin', async () => {
+            const getUsersStub = sinon.stub(userDb, 'getUsers')
+            getUsersStub.resolves([
+                {
+                    id: 1,
+                    username: 'first',
+                },
+                {
+                    id: 2,
+                    username: 'second',
+                },
+            ])
+
+            const response = await supertest(app)
+                .get('/api/users')
+                .set('Authorization', helpers.getJwt('isadmin', true))
+                .expect(200)
+
+            assert(getUsersStub.calledOnce)
+            assert.equal(response.body.length, 2)
         })
     })
 

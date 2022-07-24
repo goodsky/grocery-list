@@ -18,6 +18,14 @@ const errorHandler = (error, request, response, next) => {
             response.status(401).json({ error: 'invalid token' })
             break
 
+        case 'SyntaxError':
+            if (error.message.startsWith('Unexpected token')) {
+                response.status(400).json({ error: 'malformed input' })
+            } else {
+                response.status(500).json({ error: 'syntax error' })
+            }
+            break
+
         default:
             response.status(500).json({ error: 'oops' })
     }
@@ -61,7 +69,7 @@ const tokenAdminRequired = (request, response, next) => {
     }
 
     if (!claims.isAdmin) {
-        response.status(403).json({ error: 'user cannot enumerate users' })
+        response.status(403).json({ error: 'user is not an admin account' })
         return
     }
 

@@ -36,7 +36,7 @@ const convertRowToGroceryItem = (row) => {
     }
 }
 
-const addGroceryItem = async (groceryItem) => {
+const addGrocery = async (groceryItem) => {
     await init()
 
     const rows = await db.insert(
@@ -53,13 +53,13 @@ const addGroceryItem = async (groceryItem) => {
     return convertRowToGroceryItem(rows[0])
 }
 
-const deleteGroceryItem = async (id) => {
+const deleteGrocery = async (id) => {
     await init()
 
     await db.query(`DELETE FROM ${tablename} WHERE ${idColumn} = $1`, [id])
 }
 
-const getGroceryItems = async () => {
+const getGroceries = async () => {
     await init()
 
     const result = await db.query(
@@ -69,7 +69,7 @@ const getGroceryItems = async () => {
     return result.rows.map((row) => convertRowToGroceryItem(row))
 }
 
-const getGroceryItemById = async (id) => {
+const getGroceryById = async (id) => {
     await init()
 
     const result = await db.query(
@@ -88,20 +88,25 @@ const getGroceryItemById = async (id) => {
     return convertRowToGroceryItem(result.rows[0])
 }
 
-const updateGroceryItem = async (groceryItem) => {
+const updateGrocery = async (groceryItem) => {
     await init()
 
-    await db.query(
-        `UPDATE ${tablename} SET ${nameColumn} = $1, ${aliasesColumn} = $2, ${sectionsColumn} = $3, ${unitsColumn} = $4 WHERE ${idColumn} = $5`[
-            (groceryItem.name, groceryItem.aliases, groceryItem.sections, groceryItem.defaultUnit, groceryItem.id)
-        ]
+    const result = await db.query(
+        `UPDATE ${tablename} SET ${nameColumn} = $1, ${aliasesColumn} = $2, ${sectionsColumn} = $3, ${unitsColumn} = $4 WHERE ${idColumn} = $5 RETURNING ${idColumn}`,
+        [groceryItem.name, groceryItem.aliases, groceryItem.sections, groceryItem.units, groceryItem.id]
     )
+
+    if (result.rows.length === 0) {
+        return null
+    }
+
+    return result.rows[0].id
 }
 
 module.exports = {
-    addGroceryItem,
-    deleteGroceryItem,
-    getGroceryItems,
-    getGroceryItemById,
-    updateGroceryItem,
+    addGrocery,
+    deleteGrocery,
+    getGroceries,
+    getGroceryById,
+    updateGrocery,
 }

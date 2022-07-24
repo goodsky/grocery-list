@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 
 const config = require('../utils/config')
 
-const getAuthHeader = (username = 'defaultuser', isAdmin = false, expiresIn = 60) => {
+const getJwt = (username = 'defaultuser', isAdmin = false, expiresIn = 60) => {
     const payload = {
         id: 42,
         username,
@@ -15,5 +15,5 @@ const getAuthHeader = (username = 'defaultuser', isAdmin = false, expiresIn = 60
 }
 
 module.exports = {
-    getAuthHeader,
+    getJwt,
 }
