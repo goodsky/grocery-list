@@ -24,7 +24,7 @@ const init = async () => {
 
 const convertRowToGroceryItem = (row) => {
     if (!row) {
-        throw Error('Attempted to convert empty row to GroceryItem')
+        return null
     }
 
     return {
@@ -36,71 +36,63 @@ const convertRowToGroceryItem = (row) => {
     }
 }
 
-const addGrocery = async (groceryItem) => {
+const addGrocery = async (grocery) => {
     await init()
 
-    const rows = await db.insert(
-        tablename,
-        {
-            [nameColumn]: groceryItem.name,
-            [aliasesColumn]: groceryItem.aliases,
-            [sectionsColumn]: groceryItem.sections,
-            [unitsColumn]: groceryItem.units,
+    const newGrocery = await db.insert(tablename, {
+        values: {
+            [nameColumn]: grocery.name,
+            [aliasesColumn]: grocery.aliases,
+            [sectionsColumn]: grocery.sections,
+            [unitsColumn]: grocery.units,
         },
-        [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn]
-    )
+        returning: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
+    })
 
-    return convertRowToGroceryItem(rows[0])
+    return convertRowToGroceryItem(newGrocery)
 }
 
 const deleteGrocery = async (id) => {
     await init()
 
-    await db.query(`DELETE FROM ${tablename} WHERE ${idColumn} = $1`, [id])
+    await db.removeSingle(tablename, { filters: { [idColumn]: id } })
 }
 
 const getGroceries = async () => {
     await init()
 
-    const result = await db.query(
-        `SELECT ${idColumn}, ${nameColumn}, ${aliasesColumn}, ${sectionsColumn}, ${unitsColumn} FROM ${tablename}`
-    )
-
-    return result.rows.map((row) => convertRowToGroceryItem(row))
+    const groceries = await db.select(tablename, {
+        columns: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
+    })
+    return groceries.map((row) => convertRowToGroceryItem(row))
 }
 
 const getGroceryById = async (id) => {
     await init()
 
-    const result = await db.query(
-        `SELECT ${idColumn}, ${nameColumn}, ${aliasesColumn}, ${sectionsColumn}, ${unitsColumn} FROM ${tablename} WHERE ${idColumn} = $1`,
-        [id]
-    )
+    const grocery = await db.selectSingle(tablename, {
+        columns: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
+        filters: { [idColumn]: id },
+    })
 
-    if (result.rows.length === 0) {
-        return null
-    }
-
-    if (result.rows.length > 1) {
-        throw new Error(`unexpected query result : expected exactly one grocery item with id = '${id}'`)
-    }
-
-    return convertRowToGroceryItem(result.rows[0])
+    return convertRowToGroceryItem(grocery)
 }
 
-const updateGrocery = async (groceryItem) => {
+const updateGrocery = async (grocery) => {
     await init()
 
-    const result = await db.query(
-        `UPDATE ${tablename} SET ${nameColumn} = $1, ${aliasesColumn} = $2, ${sectionsColumn} = $3, ${unitsColumn} = $4 WHERE ${idColumn} = $5 RETURNING ${idColumn}`,
-        [groceryItem.name, groceryItem.aliases, groceryItem.sections, groceryItem.units, groceryItem.id]
-    )
+    const values = {}
+    if (grocery.name) values[nameColumn] = grocery.name
+    if (grocery.aliases) values[aliasesColumn] = grocery.aliases
+    if (grocery.sections) values[sectionsColumn] = grocery.sections
+    if (grocery.units) values[unitsColumn] = grocery.units
 
-    if (result.rows.length === 0) {
-        return null
-    }
+    const wasUpdated = await db.updateSingle(tablename, {
+        values,
+        filters: { [idColumn]: grocery.id },
+    })
 
-    return result.rows[0].id
+    return wasUpdated
 }
 
 module.exports = {

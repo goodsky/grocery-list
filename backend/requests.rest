@@ -35,10 +35,10 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "name": "Eggs",
-    "aliases": [],
-    "sections": [ "Eggs and Yogurt" ],
-    "units": "dozen"
+    "name": "Test Item",
+    "aliases": ["Test" ],
+    "sections": [ "Test Section" ],
+    "units": null
 }
 
 ### Get Groceries

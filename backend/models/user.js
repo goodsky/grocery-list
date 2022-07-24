@@ -39,48 +39,37 @@ const convertRowToUser = (row) => {
 const addUser = async (user) => {
     await init()
 
-    const rows = await db.insert(
-        tablename,
-        {
+    const newUser = await db.insert(tablename, {
+        values: {
             [usernameColumn]: user.username,
             [passwordHashColumn]: user.passwordHash,
             [joinedDateColumn]: user.joinedDate,
             [isAdminColumn]: user.isAdmin,
         },
-        [idColumn, usernameColumn, joinedDateColumn, isAdminColumn]
-    )
+        returning: [idColumn, usernameColumn, joinedDateColumn, isAdminColumn],
+    })
 
-    return convertRowToUser(rows[0])
+    return convertRowToUser(newUser)
 }
 
 const getUsers = async () => {
     await init()
 
-    const result = await db.query(
-        `SELECT ${idColumn}, ${usernameColumn}, ${joinedDateColumn}, ${isAdminColumn} FROM ${tablename}`
-    )
-
-    return result.rows.map((row) => convertRowToUser(row))
+    const users = await db.select(tablename, {
+        columns: [idColumn, usernameColumn, joinedDateColumn, isAdminColumn],
+    })
+    return users.map((row) => convertRowToUser(row))
 }
 
 const getUserByUsername = async (username) => {
     await init()
 
-    const result = await db.query(
-        `SELECT ${idColumn}, ${usernameColumn}, ${passwordHashColumn}, ${joinedDateColumn}, ${isAdminColumn} FROM ${tablename}
-        WHERE ${usernameColumn} = $1`,
-        [username]
-    )
+    const user = await db.selectSingle(tablename, {
+        columns: [idColumn, usernameColumn, passwordHashColumn, joinedDateColumn, isAdminColumn],
+        filters: { [usernameColumn]: username },
+    })
 
-    if (result.rows.length === 0) {
-        return null
-    }
-
-    if (result.rows.length > 1) {
-        throw Error(`unexpected query result : expected exactly one user with username = '${username}'`)
-    }
-
-    return convertRowToUser(result.rows[0])
+    return convertRowToUser(user)
 }
 
 module.exports = {

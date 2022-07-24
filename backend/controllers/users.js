@@ -11,14 +11,6 @@ const router = Router()
 
 const defaultAdminUsername = 'admin'
 
-// GET /api/users
-router.get('/', middleware.tokenAdminRequired, async (request, response) => {
-    const users = await userDb.getUsers()
-
-    logger.info('Read users count', users.length)
-    response.status(200).json(users)
-})
-
 // POST /api/users
 router.post('/', async (request, response) => {
     const { username, password } = request.body
@@ -46,6 +38,14 @@ router.post('/', async (request, response) => {
     const newUser = await userDb.addUser(user)
 
     response.status(201).json(newUser)
+})
+
+// GET /api/users
+router.get('/', middleware.tokenAdminRequired, async (request, response) => {
+    const users = await userDb.getUsers()
+
+    logger.info('Read users count', users.length)
+    response.status(200).json(users)
 })
 
 // POST /api/users/login

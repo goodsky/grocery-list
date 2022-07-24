@@ -78,8 +78,8 @@ router.put('/:id', middleware.tokenAdminRequired, async (request, response) => {
         units,
     }
 
-    const updatedId = await groceryDb.updateGrocery(updatedGrocery)
-    if (!updatedId) {
+    const wasUpdated = await groceryDb.updateGrocery(updatedGrocery)
+    if (!wasUpdated) {
         response.sendStatus(404)
         return
     }
