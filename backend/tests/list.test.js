@@ -34,7 +34,7 @@ describe('Lists Controller', () => {
                             .post('/api/lists')
                             .set('Authorization', helpers.getJwt('listowner'))
                             .send({ name: 'Test List' })
-                            .expect(200)
+                            .expect(201)
 
                         const createdList = createStub.getCall(0).args[0]
                         assert.equal(createdList.owner, 'listowner')
@@ -99,6 +99,7 @@ describe('Lists Controller', () => {
                         await supertest(app)
                             .put('/api/lists/37')
                             .set('Authorization', helpers.getJwt('thisguy'))
+                            .send({ id: 37, name: 'New Name' })
                             .expect(404)
 
                         // this test asserts that the username was supplied as a filter
@@ -107,12 +108,13 @@ describe('Lists Controller', () => {
                     })
 
                     it('should update list if list is not owned by user but user is admin', async () => {
-                        const updateStub = sinon.stub(listDb, 'updateList').resolves(0)
+                        const updateStub = sinon.stub(listDb, 'updateList').resolves(1)
 
                         await supertest(app)
                             .put('/api/lists/37')
                             .set('Authorization', helpers.getJwt('admin', true))
-                            .expect(404)
+                            .send({ id: 37, name: 'New Name' })
+                            .expect(204)
 
                         // this test asserts that the username was supplied as a filter
                         assert(updateStub.calledOnce)
@@ -129,7 +131,7 @@ describe('Lists Controller', () => {
                         await supertest(app)
                             .delete('/api/lists/37')
                             .set('Authorization', helpers.getJwt('thisguy'))
-                            .expect(404)
+                            .expect(204)
 
                         // this test asserts that the username was supplied as a filter
                         assert(deleteStub.calledOnce)
@@ -154,12 +156,12 @@ describe('Lists Controller', () => {
         'defaultuser'
     )
 
-    describe(`GET /api/lists/all`, () => {
+    describe(`GET /api/lists?all=true`, () => {
         it(`should return ALL lists when admin`, async () => {
             const retriveAllStub = sinon.stub(listDb, 'getLists').resolves([{ name: 'A' }, { name: 'B' }])
 
             const response = await supertest(app)
-                .get('/api/lists/all')
+                .get('/api/lists?all=true')
                 .set('Authorization', helpers.getJwt('admin', true))
                 .expect(200)
 
@@ -168,7 +170,13 @@ describe('Lists Controller', () => {
         })
 
         it(`should not return ALL lists if not admin`, async () => {
-            await supertest(app).get('/api/lists/all').set('Authorization', helpers.getJwt()).expect(401)
+            const retrieveStub = sinon.stub(listDb, 'getListsByUsername').resolves([{ name: 'A' }, { name: 'B' }])
+            const retriveAllStub = sinon.stub(listDb, 'getLists')
+
+            await supertest(app).get('/api/lists?all=true').set('Authorization', helpers.getJwt()).expect(200)
+
+            assert(retrieveStub.calledOnce)
+            assert(retriveAllStub.notCalled)
         })
 
         it(`should not return ALL lists if not authenticated`, async () => {

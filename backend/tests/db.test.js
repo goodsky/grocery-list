@@ -135,15 +135,16 @@ describe('PostgreSQL db wrapper', () => {
             },
             filters: {
                 id: 42,
+                username: 'foo',
             },
         })
 
         assert(queryStub.calledOnce)
         const queryText = queryStub.getCall(0).args[0]
         const queryValues = queryStub.getCall(0).args[1]
-        const expectedValues = ['new value', 'abcdefg', 37, 42]
+        const expectedValues = ['new value', 'abcdefg', 37, 42, 'foo']
 
-        assert.equal(queryText, 'UPDATE testtable SET col2 = $1, col4 = $2, col5 = $3 WHERE id = $4')
+        assert.equal(queryText, 'UPDATE testtable SET col2 = $1, col4 = $2, col5 = $3 WHERE id = $4 AND username = $5')
         assert.equal(queryValues.toString(), expectedValues.toString())
         assert.equal(result, 1)
     })

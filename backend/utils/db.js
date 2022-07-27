@@ -95,7 +95,7 @@ const update = async (tablename, config) => {
         const startParamIndex = columns.length + 1
         const filterString = filterKeys
             .map((key, index) => `${key} = $${index + startParamIndex}`)
-            .reduce((prev, nextFilter) => `${prev}, ${nextFilter}`)
+            .reduce((prev, nextFilter) => `${prev} AND ${nextFilter}`)
 
         query += ` WHERE ${filterString}`
         params = params.concat(filterParams)
