@@ -12,7 +12,7 @@ const init = async () => {
     })
 
     await db.insert(tablename, {
-        [messageColumn]: `This Database was initialized on ${new Date().toString()}`,
+        values: { [messageColumn]: `This Database was initialized on ${new Date().toString()}` },
     })
 
     hasInit = true
