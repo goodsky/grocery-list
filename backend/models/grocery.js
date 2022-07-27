@@ -96,6 +96,8 @@ const updateGrocery = async (grocery) => {
 }
 
 module.exports = {
+    tablename,
+    primaryKey: idColumn,
     addGrocery,
     deleteGrocery,
     getGroceries,

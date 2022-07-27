@@ -73,6 +73,8 @@ const getUserByUsername = async (username) => {
 }
 
 module.exports = {
+    tablename,
+    primaryKey: usernameColumn,
     addUser,
     getUsers,
     getUserByUsername,
