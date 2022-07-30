@@ -3,61 +3,59 @@ const supertest = require('supertest')
 
 const app = require('../app')
 const crudTests = require('./crudtests')
-const groceryDb = require('../models/grocery')
+const storeDb = require('../models/store')
 const helpers = require('./helpers')
 
-describe('Groceries Controller', () => {
+describe('Stores Controller', () => {
     afterEach(() => {
         sinon.restore()
     })
 
     crudTests(
-        '/api/groceries',
-        'grocery',
-        groceryDb,
+        '/api/stores',
+        'store',
+        storeDb,
         {
             id: 1,
-            name: 'Test Grocery',
-            aliases: ['Test'],
-            sections: ['Test Section'],
-            units: 'foobars',
+            name: 'Test Mart',
+            address: '1234 FooBar Circle, Orlando FL 12345',
         },
         {
             create: {
-                method: 'addGrocery',
+                method: 'addStore',
                 additionalTests: () => {
-                    it('should not add a grocery if not admin', async () => {
+                    it('should not add a store if not admin', async () => {
                         await supertest(app)
-                            .post('/api/groceries')
+                            .post('/api/store')
                             .set('Authorization', helpers.getJwt('not admin', false))
-                            .send({ name: 'foo' })
+                            .send({ name: 'Foo Grocery', address: 'abcdefg' })
                             .expect(403)
                     })
                 },
             },
-            retriveAll: { method: 'getGroceries' },
-            retrieveById: { method: 'getGroceryById' },
+            retriveAll: { method: 'getStores' },
+            retrieveById: { method: 'getStoreById' },
             update: {
-                method: 'updateGrocery',
+                method: 'updateStore',
                 additionalTests: () => {
-                    it('should not update grocery if not admin', async () => {
+                    it('should not update store if not admin', async () => {
                         await supertest(app)
-                            .put('/api/groceries/42')
+                            .put('/api/stores/42')
                             .set('Authorization', helpers.getJwt('not admin', false))
                             .send({
                                 id: 42,
-                                name: 'Test Grocery',
+                                name: 'Foo Grocery',
                             })
                             .expect(403)
                     })
                 },
             },
             remove: {
-                method: 'deleteGrocery',
+                method: 'deleteStore',
                 additionalTests: () => {
-                    it('should not delete grocery if not admin', async () => {
+                    it('should not delete store if not admin', async () => {
                         await supertest(app)
-                            .put('/api/groceries/42')
+                            .put('/api/stores/42')
                             .set('Authorization', helpers.getJwt('not admin', false))
                             .expect(403)
                     })
