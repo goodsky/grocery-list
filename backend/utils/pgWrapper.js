@@ -19,6 +19,10 @@ const client = new Client({
 
 let isConnected = false
 const query = async (text, params) => {
+    if (config.NODE_ENV === 'test') {
+        throw Error('PostgreSQL queries are disabled in the test environment.')
+    }
+
     try {
         if (!isConnected) {
             logger.info('Connecting to PostgreSQL')

@@ -22,7 +22,7 @@ const init = async () => {
     }
 }
 
-const convertRowToGroceryItem = (row) => {
+const convertRowToGrocery = (row) => {
     if (!row) {
         return null
     }
@@ -49,7 +49,7 @@ const addGrocery = async (grocery) => {
         returning: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
     })
 
-    return convertRowToGroceryItem(newGrocery)
+    return convertRowToGrocery(newGrocery)
 }
 
 const deleteGrocery = async (id) => {
@@ -64,7 +64,7 @@ const getGroceries = async () => {
     const groceries = await db.select(tablename, {
         columns: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
     })
-    return groceries.map((row) => convertRowToGroceryItem(row))
+    return groceries.map((row) => convertRowToGrocery(row))
 }
 
 const getGroceryById = async (id) => {
@@ -75,7 +75,7 @@ const getGroceryById = async (id) => {
         filters: { [idColumn]: id },
     })
 
-    return convertRowToGroceryItem(grocery)
+    return convertRowToGrocery(grocery)
 }
 
 const updateGrocery = async (grocery) => {

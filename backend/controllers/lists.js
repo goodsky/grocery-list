@@ -3,8 +3,14 @@ const Router = require('express')
 const logger = require('../utils/logger')
 const middleware = require('../utils/middleware')
 const listDb = require('../models/list')
+const listItemDb = require('../models/listItem')
 
 const router = Router()
+
+const userIsOwner = async (listId, username) => {
+    const list = await listDb.getListById(listId)
+    return list && list.owner === username
+}
 
 // POST /api/lists
 router.post('/', middleware.tokenRequired, async (request, response) => {
@@ -104,6 +110,10 @@ router.delete('/:id', middleware.tokenRequired, async (request, response) => {
     if (!idInt) {
         response.status(400).json({ error: 'invalid id' })
         return
+    }
+
+    if (isAdmin || (await userIsOwner(id, username))) {
+        await listItemDb.deleteListItemsByListId(idInt)
     }
 
     await listDb.deleteList(idInt, isAdmin ? null : username)

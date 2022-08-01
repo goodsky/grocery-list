@@ -5,6 +5,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const crudTests = require('./crudtests')
 const listDb = require('../models/list')
+const listItemDb = require('../models/listItem')
 const helpers = require('./helpers')
 
 describe('Lists Controller', () => {
@@ -124,8 +125,32 @@ describe('Lists Controller', () => {
             },
             remove: {
                 method: 'deleteList',
+                beforeEach: () => {
+                    sinon.stub(listItemDb, 'deleteListItemsByListId')
+                    sinon.stub(listDb, 'getListById').resolves({
+                        id: 2,
+                        name: 'Test List',
+                        owner: 'defaultuser',
+                    })
+                },
                 additionalTests: () => {
-                    it('should not delete if list is not owned by user and return 404', async () => {
+                    it('should also delete list items when list is deleted', async () => {
+                        sinon.restore()
+
+                        sinon.stub(listDb, 'deleteList')
+                        const deleteListItemsStub = sinon.stub(listItemDb, 'deleteListItemsByListId')
+                        sinon.stub(listDb, 'getListById').resolves({
+                            id: 2,
+                            name: 'Test List',
+                            owner: 'defaultuser',
+                        })
+
+                        await supertest(app).delete('/api/lists/37').set('Authorization', helpers.getJwt()).expect(204)
+
+                        assert(deleteListItemsStub.calledOnce)
+                    })
+
+                    it('should not delete if list is not owned by user and return 204', async () => {
                         const deleteStub = sinon.stub(listDb, 'deleteList')
 
                         await supertest(app)

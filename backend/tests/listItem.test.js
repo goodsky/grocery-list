@@ -28,6 +28,7 @@ describe('List Items Controller', () => {
         listItemDb,
         {
             id: 1,
+            listId: 2,
             groceryId: 33,
             storeId: 7,
             pickedUp: false,
@@ -43,13 +44,13 @@ describe('List Items Controller', () => {
                         await supertest(app)
                             .post('/api/lists/2/items')
                             .set('Authorization', helpers.getJwt('notdefaultuser'))
-                            .send({ groceryId: 33, storeId: 7 })
+                            .send({ groceryId: 33, storeId: 7, amount: 1 })
                             .expect(404)
                     })
                 },
             },
             retrieveAll: {
-                method: 'getListsItemsByListId',
+                method: 'getListItemsByListId',
                 additionalTests: () => {
                     it(`should return 404 if list is not owned by user`, async () => {
                         await supertest(app)
@@ -70,6 +71,8 @@ describe('List Items Controller', () => {
                     })
 
                     it('should return list item if list is not owned by user, but user is admin', async () => {
+                        sinon.stub(listItemDb, 'getListItemById').resolves({})
+
                         await supertest(app)
                             .get('/api/lists/2/items/1')
                             .set('Authorization', helpers.getJwt('admin', true))
@@ -81,24 +84,24 @@ describe('List Items Controller', () => {
                 method: 'updateListItem',
                 additionalTests: () => {
                     it('should not update list if list is not owned by user and return 404', async () => {
-                        const updateStub = sinon.stub(listDb, 'updateListItem').resolves(1)
+                        const updateStub = sinon.stub(listItemDb, 'updateListItem').resolves(1)
 
                         await supertest(app)
                             .put('/api/lists/2/items/1')
                             .set('Authorization', helpers.getJwt('notdefaultuser'))
-                            .send({ groceryId: 33, storeId: 7 })
+                            .send({ id: 1, groceryId: 33, storeId: 7, amount: 1 })
                             .expect(404)
 
                         assert(updateStub.notCalled)
                     })
 
                     it('should update list if list is not owned by user but user is admin', async () => {
-                        const updateStub = sinon.stub(listDb, 'updateListItem').resolves(1)
+                        const updateStub = sinon.stub(listItemDb, 'updateListItem').resolves(1)
 
                         await supertest(app)
                             .put('/api/lists/2/items/1')
                             .set('Authorization', helpers.getJwt('admin', true))
-                            .send({ groceryId: 33, storeId: 7 })
+                            .send({ id: 1, groceryId: 33, storeId: 7, amount: 1 })
                             .expect(204)
 
                         assert(updateStub.calledOnce)
@@ -108,19 +111,19 @@ describe('List Items Controller', () => {
             remove: {
                 method: 'deleteListItem',
                 additionalTests: () => {
-                    it('should not delete if list is not owned by user and return 404', async () => {
-                        const deleteStub = sinon.stub(listDb, 'deleteListItem').resolves(1)
+                    it('should not delete if list is not owned by user and return 204', async () => {
+                        const deleteStub = sinon.stub(listItemDb, 'deleteListItem').resolves(1)
 
                         await supertest(app)
                             .delete('/api/lists/2/items/1')
                             .set('Authorization', helpers.getJwt('notdefaultuser'))
-                            .expect(404)
+                            .expect(204)
 
                         assert(deleteStub.notCalled)
                     })
 
                     it('should delete if list is not owned by user but user is admin', async () => {
-                        const deleteStub = sinon.stub(listDb, 'deleteListItem')
+                        const deleteStub = sinon.stub(listItemDb, 'deleteListItem')
 
                         await supertest(app)
                             .delete('/api/lists/2/items/1')

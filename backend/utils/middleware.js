@@ -9,6 +9,8 @@ const errorHandler = (error, request, response, next) => {
         case 'DbQueryFailed':
             if (error.message.startsWith('duplicate key value violates unique constraint')) {
                 response.status(409).json({ error: 'key already exists' })
+            } else if (error.message.includes('violates foreign key constraint')) {
+                response.status(400).json({ error: 'unknown id: foreign key constraint failed' })
             } else {
                 response.status(500).json({ error: 'query failed' })
             }

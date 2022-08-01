@@ -1,3 +1,5 @@
+### --- USERS / LOGIN -------------------------------------------------------------------
+
 ### Add User
 # @prompt username
 # @prompt password
@@ -28,6 +30,8 @@ Content-Type: application/json
 GET {{host}}/api/users
 Authorization: Bearer {{token}}
 
+### --- GROCERIES -------------------------------------------------------------------
+
 ### Add Grocery
 # @prompt name
 POST {{host}}/api/groceries
@@ -45,7 +49,7 @@ Content-Type: application/json
 GET {{host}}/api/groceries
 Authorization: Bearer {{token}}
 
-### Get Grocery
+### Get Grocery by id
 # @prompt id
 GET {{host}}/api/groceries/{{id}}
 Authorization: Bearer {{token}}
@@ -70,6 +74,8 @@ Content-Type: application/json
 DELETE {{host}}/api/groceries/{{id}}
 Authorization: Bearer {{token}}
 
+### --- LISTS -------------------------------------------------------------------
+
 ### Add List
 # @prompt name
 POST {{host}}/api/lists
@@ -88,7 +94,7 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/lists?all=true
 Authorization: Bearer {{token}}
 
-### Get List
+### Get List by id
 # @prompt id
 GET {{host}}/api/lists/{{id}}
 Authorization: Bearer {{token}}
@@ -108,4 +114,91 @@ Content-Type: application/json
 ### Delete List
 # @prompt id
 DELETE {{host}}/api/lists/{{id}}
+Authorization: Bearer {{token}}
+
+### --- LIST ITEMS -------------------------------------------------------------------
+
+### Add Item to List
+# @prompt listId
+# @prompt groceryId
+# @prompt storeId
+# @prompt amount
+POST {{host}}/api/lists/{{listId}}/items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "groceryId": {{groceryId}},
+    "storeId": {{storeId}},
+    "amount": {{amount}}
+}
+
+### Get Items from List
+# @prompt listId
+GET {{host}}/api/lists/{{listId}}/items
+Authorization: Bearer {{token}}
+
+### Get Item by Id
+# @prompt listId
+# @prompt id
+GET {{host}}/api/lists/{{listId}}/items/{{id}}
+Authorization: Bearer {{token}}
+
+### Update Item
+# @prompt listId
+# @prompt id
+# @prompt pickedUp
+PUT {{host}}/api/lists/{{listId}}/items/{{id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "id": {{id}},
+    "pickedUp": {{pickedUp}}
+}
+
+### Delete Item from List
+# @prompt listId
+# @prompt id
+DELETE {{host}}/api/lists/{{listId}}/items/{{id}}
+Authorization: Bearer {{token}}
+
+### --- STORES -------------------------------------------------------------------
+
+### Add Store
+# @prompt name
+# @prompt address
+POST {{host}}/api/stores
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "{{name}}",
+    "address": "{{address}}"
+}
+
+### Get Stores
+GET {{host}}/api/stores
+Authorization: Bearer {{token}}
+
+### Get Store by id
+# @prompt id
+GET {{host}}/api/stores/{{id}}
+Authorization: Bearer {{token}}
+
+### Update Store
+# @prompt id
+# @prompt newaddress
+PUT {{host}}/api/stores/{{id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "id": {{id}},
+    "address": "{{newaddress}}"
+}
+
+### Delete Store
+# @prompt id
+DELETE {{host}}/api/stores/{{id}}
 Authorization: Bearer {{token}}

@@ -26,7 +26,7 @@ describe('Stores Controller', () => {
                 additionalTests: () => {
                     it('should not add a store if not admin', async () => {
                         await supertest(app)
-                            .post('/api/store')
+                            .post('/api/stores')
                             .set('Authorization', helpers.getJwt('not admin', false))
                             .send({ name: 'Foo Grocery', address: 'abcdefg' })
                             .expect(403)
