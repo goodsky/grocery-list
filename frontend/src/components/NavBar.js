@@ -8,10 +8,10 @@ const NavBar = ({ userToken, logOut }) => {
                 <IconButton edge="start" color="inherit" aria-label="menu"></IconButton>
                 <Box sx={{ flexGrow: 1 }}>
                     <Button color="inherit" component={Link} to="/">
-                        blogs
+                        home
                     </Button>
-                    <Button color="inherit" component={Link} to="/users">
-                        users
+                    <Button color="inherit" component={Link} to="/lists">
+                        lists
                     </Button>
                 </Box>
                 <Typography color="inherit">Hello {userToken.username}!</Typography>

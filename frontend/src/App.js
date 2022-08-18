@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
-import { Grid, Paper, Typography } from '@mui/material'
+import { Container, Paper, Typography } from '@mui/material'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import ManageLists from './pages/ManageLists'
@@ -39,30 +39,29 @@ function App() {
 
     if (!token) {
         return (
-            <>
-                <Grid container direction="column" alignItems="center">
-                    <Typography variant="h1">Grocery List</Typography>
-                    <Paper style={{ width: '100%', maxWidth: 500, padding: 20 }}>
-                        <Routes>
-                            <Route path="*" element={<NotFound />} />
-                            <Route path="/" element={<Login setToken={logIn} />} />
-                            <Route path="/register" element={<Register setToken={logIn} />} />
-                        </Routes>
-                    </Paper>
-                </Grid>
-            </>
+            <Container maxWidth="sm">
+                <Typography variant="h1">Grocery List</Typography>
+                <Paper sx={{ padding: 2, margin: 1 }}>
+                    <Routes>
+                        <Route path="*" element={<NotFound />} />
+                        <Route path="/" element={<Login setToken={logIn} />} />
+                        <Route path="/register" element={<Register setToken={logIn} />} />
+                    </Routes>
+                </Paper>
+            </Container>
         )
     }
 
     return (
-        <>
+        <Container>
             <NavBar userToken={token} logOut={logOut} />
             <Typography variant="h1">Grocery List</Typography>
             <Routes>
+                <Route path="*" element={<NotFound />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/lists" element={<ManageLists />} />
             </Routes>
-        </>
+        </Container>
     )
 }
 
