@@ -1,21 +1,25 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Stack, TextField, Typography } from '@mui/material'
 import usersService from '../services/users'
+import PopUp from '../components/PopUp'
 
 const LogIn = ({ setToken }) => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
+    const popup = useRef()
+
     const handleLogin = async (event) => {
         event.preventDefault()
-        try {
-            const jwt = await usersService.login(username, password)
-            setToken(jwt)
+
+        const result = await usersService.login(username, password)
+        if (result.loggedIn) {
+            setToken(result.jwt)
             setUsername('')
             setPassword('')
-        } catch (error) {
-            console.error('Failed to log in', error.message, error.response.data)
+        } else {
+            popup.current.notify('Log in failed. Double check your username or password', 'error', 10000)
             setPassword('')
         }
     }
@@ -39,6 +43,7 @@ const LogIn = ({ setToken }) => {
                     variant="standard"
                     onChange={(event) => setPassword(event.target.value)}
                 />
+                <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">
                     Login
                 </Button>

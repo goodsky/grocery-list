@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, Stack, TextField, Typography } from '@mui/material'
 import usersService from '../services/users'
+import PopUp from '../components/PopUp'
 
 const Register = ({ setToken }) => {
     const [username, setUsername] = useState('')
@@ -9,18 +10,20 @@ const Register = ({ setToken }) => {
     const [confirmPassword, setConfirmPassword] = useState('')
 
     const navigate = useNavigate()
+    const popup = useRef()
 
     const handleRegister = async (event) => {
         event.preventDefault()
-        try {
-            const jwt = await usersService.register(username, password)
-            setToken(jwt)
+        const result = await usersService.register(username, password)
+
+        if (result.registered) {
+            setToken(result.jwt)
             setUsername('')
             setPassword('')
             setConfirmPassword('')
             navigate('/')
-        } catch (error) {
-            console.error('Failed to register', error.message, error.response.data)
+        } else {
+            popup.current.notify('Registration failed. Please try again.', 'error', 10000)
             setPassword('')
             setConfirmPassword('')
         }
@@ -54,6 +57,7 @@ const Register = ({ setToken }) => {
                     variant="standard"
                     onChange={(event) => setConfirmPassword(event.target.value)}
                 />
+                <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">
                     Register
                 </Button>
