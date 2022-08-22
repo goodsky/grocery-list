@@ -22,14 +22,19 @@ const register = async (username, password) => {
 
         // todo: adding a new user could return the jwt automatically?
         const response = await login(username, password)
-        return {
-            registered: true,
-            jwt: response.data,
+        if (response.loggedIn) {
+            return {
+                registered: true,
+                jwt: response.jwt,
+            }
         }
+
+        throw Error('Log in failed')
     } catch (error) {
         console.log('Register failed', error.response)
         return {
             registered: false,
+            userConflict: error.response.status === 409,
         }
     }
 }

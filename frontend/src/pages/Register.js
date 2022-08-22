@@ -17,13 +17,18 @@ const Register = ({ setToken }) => {
         const result = await usersService.register(username, password)
 
         if (result.registered) {
+            console.log('result', result)
             setToken(result.jwt)
             setUsername('')
             setPassword('')
             setConfirmPassword('')
             navigate('/')
         } else {
-            popup.current.notify('Registration failed. Please try again.', 'error', 10000)
+            if (result.userConflict) {
+                popup.current.notify('Username already exists.', 'error', 10000)
+            } else {
+                popup.current.notify('Registration failed. Please try again.', 'error', 10000)
+            }
             setPassword('')
             setConfirmPassword('')
         }

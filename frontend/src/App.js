@@ -14,7 +14,6 @@ const getUserToken = () => {
     const jwtJson = window.localStorage.getItem(jwtKey)
     if (jwtJson) {
         const jwt = JSON.parse(jwtJson)
-        console.log('Found cached user', jwt.username)
         return jwt
     }
 
