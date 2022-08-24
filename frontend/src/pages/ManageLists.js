@@ -3,7 +3,7 @@ import { Typography } from '@mui/material'
 const ManageLists = () => {
     return (
         <div>
-            <Typography variant="h1">Lists</Typography>
+            <Typography variant="h1">Grocery Lists</Typography>
             <div>
                 <ul>
                     <li>List 1</li>

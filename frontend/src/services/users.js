@@ -1,5 +1,22 @@
 import axios from 'axios'
+import tokenService from './token'
 const baseUrl = '/api/users'
+
+const getUsers = async () => {
+    try {
+        const token = tokenService.getToken()
+        const response = await axios.get(baseUrl, { headers: { Authorization: `Bearer ${token}` } })
+        return {
+            success: true,
+            users: response.data,
+        }
+    } catch (error) {
+        console.log('Get users failed', error)
+        return {
+            success: false,
+        }
+    }
+}
 
 const login = async (username, password) => {
     try {
@@ -39,5 +56,5 @@ const register = async (username, password) => {
     }
 }
 
-const usersService = { login, register }
+const usersService = { getUsers, login, register }
 export default usersService

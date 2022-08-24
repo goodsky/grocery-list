@@ -13,6 +13,9 @@ const NavBar = ({ userToken, logOut }) => {
                     <Button color="inherit" component={Link} to="/lists">
                         lists
                     </Button>
+                    <Button color="inherit" component={Link} to="/groceries">
+                        groceries
+                    </Button>
                 </Box>
                 <Typography color="inherit">Hello {userToken.username}!</Typography>
                 <Button color="inherit" onClick={logOut}>

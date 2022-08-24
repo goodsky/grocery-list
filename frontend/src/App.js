@@ -3,10 +3,13 @@ import { Routes, Route, useNavigate } from 'react-router-dom'
 import { Container, Paper, Typography } from '@mui/material'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import ManageGroceries from './pages/ManageGroceries'
 import ManageLists from './pages/ManageLists'
+import ModifyGrocery from './pages/ModifyGrocery'
 import NavBar from './components/NavBar'
 import NotFound from './pages/NotFound'
 import Register from './pages/Register'
+import tokenService from './services/token'
 
 const jwtKey = 'userJwt'
 
@@ -14,6 +17,7 @@ const getUserToken = () => {
     const jwtJson = window.localStorage.getItem(jwtKey)
     if (jwtJson) {
         const jwt = JSON.parse(jwtJson)
+        tokenService.setToken(jwt.token)
         return jwt
     }
 
@@ -27,11 +31,13 @@ function App() {
 
     const logIn = (token) => {
         window.localStorage.setItem(jwtKey, JSON.stringify(token))
+        tokenService.setToken(token.token)
         setToken(token)
     }
 
     const logOut = () => {
         window.localStorage.removeItem(jwtKey)
+        tokenService.setToken(null)
         setToken(null)
         navigate('/')
     }
@@ -54,10 +60,12 @@ function App() {
     return (
         <Container>
             <NavBar userToken={token} logOut={logOut} />
-            <Typography variant="h1">Grocery List</Typography>
             <Routes>
                 <Route path="*" element={<NotFound />} />
                 <Route path="/" element={<Home />} />
+                <Route path="/groceries" element={<ManageGroceries />} />
+                <Route path="/groceries/add" element={<ModifyGrocery type="add" />} />
+                <Route path="/groceries/edit/:id" element={<ModifyGrocery type="modify" />} />
                 <Route path="/lists" element={<ManageLists />} />
             </Routes>
         </Container>
