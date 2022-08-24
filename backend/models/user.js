@@ -24,7 +24,7 @@ const init = async () => {
 
 const convertRowToUser = (row) => {
     if (!row) {
-        throw Error('Attempted to convert empty row to User')
+        return null
     }
 
     return {

@@ -58,6 +58,9 @@ router.post('/login', async (request, response) => {
     }
 
     const user = await userDb.getUserByUsername(username)
+    if (!user) {
+        logger.warn('Login attempt for non-existent user', username)
+    }
 
     const passwordsMatch = user && (await bcrypt.compare(password, user.passwordHash))
     if (!user || !passwordsMatch) {
