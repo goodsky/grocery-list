@@ -9,15 +9,39 @@ const Register = ({ setToken }) => {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
 
+    const [passwordError, setPasswordError] = useState('')
+    const [confirmPasswordError, setConfirmPasswordError] = useState('')
+
     const navigate = useNavigate()
     const popup = useRef()
 
+    const handlePasswordValidation = (event) => {
+        if (password.length < 6) {
+            setPasswordError('Password must be at least 6 characters')
+        } else {
+            setPasswordError('')
+        }
+    }
+
+    const handleConfirmPasswordValidation = (event) => {
+        if (password !== confirmPassword) {
+            setConfirmPasswordError('Passwords must match')
+        } else {
+            setConfirmPasswordError('')
+        }
+    }
+
     const handleRegister = async (event) => {
         event.preventDefault()
+
+        if (passwordError || confirmPasswordError) {
+            popup.current.notify('Please fix the problems before attempting to register', 'warning', 5000)
+            return
+        }
+
         const result = await usersService.register(username, password)
 
         if (result.registered) {
-            console.log('result', result)
             setToken(result.jwt)
             setUsername('')
             setPassword('')
@@ -53,6 +77,9 @@ const Register = ({ setToken }) => {
                     value={password}
                     variant="standard"
                     onChange={(event) => setPassword(event.target.value)}
+                    onBlur={handlePasswordValidation}
+                    error={!!passwordError}
+                    helperText={passwordError}
                 />
                 <TextField
                     required
@@ -61,6 +88,9 @@ const Register = ({ setToken }) => {
                     value={confirmPassword}
                     variant="standard"
                     onChange={(event) => setConfirmPassword(event.target.value)}
+                    onBlur={handleConfirmPasswordValidation}
+                    error={!!confirmPasswordError}
+                    helperText={confirmPasswordError}
                 />
                 <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">
