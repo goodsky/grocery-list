@@ -25,8 +25,6 @@ const ManageGroceries = () => {
     }, [])
 
     const handleSelectionUpdate = (ids) => {
-        console.log('DataGrid Selected', ids)
-
         if (ids.length > 0) {
             setSelectedId(ids[0])
         } else {

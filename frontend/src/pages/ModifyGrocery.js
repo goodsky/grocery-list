@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Button, Container, Stack, TextField, Typography } from '@mui/material'
+import { Autocomplete, Button, Chip, Container, Stack, TextField, Typography } from '@mui/material'
 import PopUp from '../components/PopUp'
 
 const ModifyGrocery = ({ type }) => {
     const [name, setName] = useState('')
+    const [aliases, setAliases] = useState(['testing'])
 
     const popup = useRef()
     const { id } = useParams()
@@ -13,10 +14,15 @@ const ModifyGrocery = ({ type }) => {
         console.error('Missing id when modifying a grocery!!!')
     }
 
-    console.log('Grocery id', id)
-
     const title = type === 'add' ? 'Add a Grocery' : 'Modify a Grocery'
     const buttonVerb = type === 'add' ? 'Add' : 'Edit'
+
+    const handleAliasAutocompleteChange = (e, newAliases, reason) => {
+        console.log('autocomplete', newAliases, reason)
+
+        const newAliasesLowercase = newAliases.map((alias) => alias.toLowerCase())
+        setAliases(newAliasesLowercase)
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -34,6 +40,23 @@ const ModifyGrocery = ({ type }) => {
                     value={name}
                     variant="standard"
                     onChange={(event) => setName(event.target.value)}
+                />
+                <Autocomplete
+                    multiple
+                    freeSolo
+                    clearOnBlur
+                    value={aliases}
+                    options={[]}
+                    renderTags={(value, getTagProps) =>
+                        value.map((option, index) => (
+                            <Chip variant="outlined" label={option} {...getTagProps({ index })} />
+                        ))
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} variant="standard" label="Aliases" placeholder="Alias" />
+                    )}
+                    onChange={handleAliasAutocompleteChange}
+                    isOptionEqualToValue={(option, value) => option.toLowerCase() === value.toLowerCase()}
                 />
                 <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">
