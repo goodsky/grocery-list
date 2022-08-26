@@ -64,8 +64,8 @@ function App() {
                 <Route path="*" element={<NotFound />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/groceries" element={<ManageGroceries />} />
-                <Route path="/groceries/add" element={<ModifyGrocery type="add" />} />
-                <Route path="/groceries/edit/:id" element={<ModifyGrocery type="modify" />} />
+                <Route path="/groceries/add" element={<ModifyGrocery isEdit={false} />} />
+                <Route path="/groceries/edit/:id" element={<ModifyGrocery isEdit={true} />} />
                 <Route path="/lists" element={<ManageLists />} />
             </Routes>
         </Container>

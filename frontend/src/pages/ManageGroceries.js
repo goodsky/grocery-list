@@ -34,9 +34,9 @@ const ManageGroceries = () => {
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 90 },
-        { field: 'name', headerName: 'Name', width: 150 },
-        { field: 'sections', headerName: 'Sections', width: 250 },
-        { field: 'units', headerName: 'Units', width: 90 },
+        { field: 'name', headerName: 'Name', minWidth: 250, flex: 1 },
+        { field: 'sections', headerName: 'Sections', minWidth: 250, flex: 1 },
+        { field: 'units', headerName: 'Units', width: 100 },
     ]
 
     // https://mui.com/x/react-data-grid/
