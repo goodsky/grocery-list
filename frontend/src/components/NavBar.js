@@ -1,21 +1,53 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AppBar, Toolbar, IconButton, Box, Button, Typography } from '@mui/material'
+import { AppBar, Toolbar, IconButton, Box, Button, Menu, MenuItem, Typography } from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu'
+
+const navButtons = [
+    { label: 'home', url: '/' },
+    { label: 'lists', url: '/lists' },
+    { label: 'groceries', url: '/groceries' },
+]
 
 const NavBar = ({ userToken, logOut }) => {
+    const [menuAnchor, setMenuAnchor] = useState(null)
+
+    const handleOpenMenu = (event) => {
+        setMenuAnchor(event.currentTarget)
+    }
+
+    const handleCloseMenu = () => {
+        setMenuAnchor(null)
+    }
+
     return (
         <AppBar position="static">
             <Toolbar>
-                <IconButton edge="start" color="inherit" aria-label="menu"></IconButton>
-                <Box sx={{ flexGrow: 1 }}>
-                    <Button color="inherit" component={Link} to="/">
-                        home
-                    </Button>
-                    <Button color="inherit" component={Link} to="/lists">
-                        lists
-                    </Button>
-                    <Button color="inherit" component={Link} to="/groceries">
-                        groceries
-                    </Button>
+                <Box sx={{ display: { xs: 'flex', sm: 'none' }, flexGrow: 1 }}>
+                    <IconButton size="large" color="inherit" onClick={handleOpenMenu} aria-label="menu">
+                        <MenuIcon />
+                    </IconButton>
+                    <Menu
+                        anchorEl={menuAnchor}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                        keepMounted
+                        onClose={handleCloseMenu}
+                        open={!!menuAnchor}
+                        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                    >
+                        {navButtons.map((button) => (
+                            <MenuItem key={button.label} onClick={handleCloseMenu} component={Link} to={button.url}>
+                                {button.label}
+                            </MenuItem>
+                        ))}
+                    </Menu>
+                </Box>
+                <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexGrow: 1 }}>
+                    {navButtons.map((button) => (
+                        <Button key={button.label} color="inherit" component={Link} to={button.url}>
+                            {button.label}
+                        </Button>
+                    ))}
                 </Box>
                 <Typography color="inherit">Hello {userToken.username}!</Typography>
                 <Button color="inherit" onClick={logOut}>
