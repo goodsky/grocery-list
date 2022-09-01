@@ -18,8 +18,7 @@ describe('Groceries Controller', () => {
         {
             id: 1,
             name: 'Test Grocery',
-            aliases: ['Test'],
-            sections: ['Test Section'],
+            section: 'Test Section',
             units: 'foobars',
         },
         {

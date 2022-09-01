@@ -34,14 +34,14 @@ Authorization: Bearer {{token}}
 
 ### Add Grocery
 # @prompt name
+# @prompt section
 POST {{host}}/api/groceries
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
     "name": "{{name}}",
-    "aliases": [],
-    "sections": [],
+    "section": "{{section}}",
     "units": null
 }
 
@@ -64,8 +64,6 @@ Content-Type: application/json
 {
     "id": {{id}},
     "name": "{{newname}}",
-    "aliases": [ "Test" ],
-    "sections": [ "Test Section" ],
     "units": "oz"
 }
 

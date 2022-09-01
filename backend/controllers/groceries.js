@@ -8,16 +8,15 @@ const router = Router()
 
 // POST /api/groceries
 router.post('/', middleware.tokenAdminRequired, async (request, response) => {
-    const { name, aliases, sections, units } = request.body
-    if (!name || !Array.isArray(aliases) || !Array.isArray(sections)) {
+    const { name, section, units } = request.body
+    if (!name || !section) {
         response.status(400).json({ error: 'invalid input' })
         return
     }
 
     const grocery = {
         name,
-        aliases,
-        sections,
+        section,
         units,
     }
 
@@ -63,18 +62,18 @@ router.put('/:id', middleware.tokenAdminRequired, async (request, response) => {
         return
     }
 
+    console.log('update grocery', request.body)
     const idFromBody = request.body.id
     if (idInt !== idFromBody) {
         response.status(400).json({ error: 'id in body and path do not match' })
         return
     }
 
-    const { name, aliases, sections, units } = request.body
+    const { name, section, units } = request.body
     const updatedGrocery = {
         id: idInt,
         name,
-        aliases,
-        sections,
+        section,
         units,
     }
 

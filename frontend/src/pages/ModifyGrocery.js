@@ -1,23 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Autocomplete, Button, Chip, Container, Stack, TextField, Typography } from '@mui/material'
+import { Autocomplete, Button, Container, Stack, TextField, Typography } from '@mui/material'
 import PopUp from '../components/PopUp'
 import groceryService from '../services/groceries'
 
+const tempSections = ['Test', 'Dairy', 'Frozen Treats', 'Beer', 'Cheese', 'Produce']
+
 const ModifyGrocery = ({ isEdit }) => {
     const [name, setName] = useState('')
-    const [aliases, setAliases] = useState([])
-    const [sections, setSections] = useState([])
+    const [section, setSection] = useState('')
     const [units, setUnits] = useState('')
-
-    const [sectionsError, setSectionsError] = useState('')
 
     const popup = useRef()
     const navigate = useNavigate()
     const { id } = useParams()
+    const idInt = parseInt(id, 10)
 
-    if (isEdit && !id) {
-        console.error('Missing id when modifying a grocery!!!')
+    if (isEdit) {
+        if (!id) {
+            console.error('Missing id while modifying a grocery!!!')
+        } else if (!idInt) {
+            console.error('Invalid id while modifying a grocery!!!')
+        }
     }
 
     const title = isEdit ? 'Modify a Grocery' : 'Add a Grocery'
@@ -28,12 +32,13 @@ const ModifyGrocery = ({ isEdit }) => {
             const result = await groceryService.getGroceryById(id)
             if (result.success) {
                 setName(result.grocery.name)
-                if (result.grocery.aliases) setAliases(result.grocery.aliases)
-                if (result.grocery.sections) setSections(result.grocery.sections)
+                setSection(result.grocery.section)
                 if (result.grocery.units) setUnits(result.grocery.units)
             } else {
                 popup.current.notify(`Failed to load grocery '${id}`, 'error', 5000)
             }
+
+            // TODO: load sections array to populate section autocomplete
         }
 
         if (isEdit) {
@@ -41,43 +46,19 @@ const ModifyGrocery = ({ isEdit }) => {
         }
     }, [isEdit, id])
 
-    const handleAliasAutocompleteChange = (e, newAliases, reason) => {
-        const newAliasesLowercase = newAliases.map((alias) => alias.toLowerCase())
-        setAliases(newAliasesLowercase)
-    }
-
-    const handleSectionAutocompleteChange = (e, newSections, reason) => {
-        const newSectionsLowercase = newSections.map((section) => section.toLowerCase())
-        setSections(newSectionsLowercase)
-
-        if (newSectionsLowercase.length === 0) {
-            setSectionsError('Grocery must have at least one section')
-        } else {
-            setSectionsError('')
-        }
-    }
-
     const handleSubmit = async (event) => {
         event.preventDefault()
 
-        if (sections.length === 0) {
-            setSectionsError('Grocery must have at least one section')
-            return
-        } else {
-            setSectionsError('')
-        }
-
         const grocery = {
             name,
-            aliases,
-            sections,
+            section,
             units,
         }
 
         let result = {}
         if (isEdit) {
             const updatedGrocery = {
-                id,
+                id: idInt,
                 ...grocery,
             }
             console.log('Updating grocery', updatedGrocery)
@@ -109,45 +90,17 @@ const ModifyGrocery = ({ isEdit }) => {
                     onChange={(event) => setName(event.target.value)}
                 />
                 <Autocomplete
-                    multiple
                     freeSolo
-                    clearOnBlur
-                    value={aliases}
-                    options={[]}
-                    renderTags={(value, getTagProps) =>
-                        value.map((option, index) => (
-                            <Chip variant="outlined" label={option} {...getTagProps({ index })} />
-                        ))
-                    }
-                    renderInput={(params) => (
-                        <TextField {...params} variant="standard" label="Aliases" placeholder="Alias" />
-                    )}
-                    onChange={handleAliasAutocompleteChange}
-                    isOptionEqualToValue={(option, value) => option.toLowerCase() === value.toLowerCase()}
-                />
-                <Autocomplete
-                    multiple
-                    freeSolo
-                    clearOnBlur
-                    value={sections}
-                    options={[]}
-                    renderTags={(value, getTagProps) =>
-                        value.map((option, index) => (
-                            <Chip variant="outlined" label={option} {...getTagProps({ index })} />
-                        ))
-                    }
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            variant="standard"
-                            label="Aisle Sections"
-                            placeholder="Section"
-                            error={!!sectionsError}
-                            helperText={sectionsError}
-                        />
-                    )}
-                    onChange={handleSectionAutocompleteChange}
-                    isOptionEqualToValue={(option, value) => option.toLowerCase() === value.toLowerCase()}
+                    options={tempSections}
+                    value={section}
+                    onChange={(event, newValue) => setSection(newValue)}
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault()
+                            e.target.blur()
+                        }
+                    }}
+                    renderInput={(params) => <TextField {...params} required label="Section" variant="standard" />}
                 />
                 <TextField
                     label="Units"

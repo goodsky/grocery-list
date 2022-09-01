@@ -3,8 +3,7 @@ const db = require('../utils/db')
 const tablename = 'groceries'
 const idColumn = 'id'
 const nameColumn = 'name'
-const aliasesColumn = 'aliases'
-const sectionsColumn = 'sections'
+const sectionColumn = 'section'
 const unitsColumn = 'units'
 
 let hasInit = false
@@ -13,8 +12,7 @@ const init = async () => {
         await db.createTable(tablename, {
             [idColumn]: 'SERIAL PRIMARY KEY',
             [nameColumn]: 'TEXT',
-            [aliasesColumn]: 'TEXT[]',
-            [sectionsColumn]: 'TEXT[]',
+            [sectionColumn]: 'TEXT',
             [unitsColumn]: 'TEXT',
         })
 
@@ -30,8 +28,7 @@ const convertRowToGrocery = (row) => {
     return {
         id: row[idColumn],
         name: row[nameColumn],
-        aliases: row[aliasesColumn],
-        sections: row[sectionsColumn],
+        section: row[sectionColumn],
         units: row[unitsColumn],
     }
 }
@@ -42,11 +39,10 @@ const addGrocery = async (grocery) => {
     const newGrocery = await db.insert(tablename, {
         values: {
             [nameColumn]: grocery.name,
-            [aliasesColumn]: grocery.aliases,
-            [sectionsColumn]: grocery.sections,
+            [sectionColumn]: grocery.section,
             [unitsColumn]: grocery.units,
         },
-        returning: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
+        returning: [idColumn, nameColumn, sectionColumn, unitsColumn],
     })
 
     return convertRowToGrocery(newGrocery)
@@ -62,7 +58,7 @@ const getGroceries = async () => {
     await init()
 
     const groceries = await db.select(tablename, {
-        columns: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
+        columns: [idColumn, nameColumn, sectionColumn, unitsColumn],
     })
     return groceries.map((row) => convertRowToGrocery(row))
 }
@@ -71,7 +67,7 @@ const getGroceryById = async (id) => {
     await init()
 
     const grocery = await db.selectSingle(tablename, {
-        columns: [idColumn, nameColumn, aliasesColumn, sectionsColumn, unitsColumn],
+        columns: [idColumn, nameColumn, sectionColumn, unitsColumn],
         filters: { [idColumn]: id },
     })
 
@@ -83,8 +79,7 @@ const updateGrocery = async (grocery) => {
 
     const values = {}
     if (grocery.name) values[nameColumn] = grocery.name
-    if (grocery.aliases) values[aliasesColumn] = grocery.aliases
-    if (grocery.sections) values[sectionsColumn] = grocery.sections
+    if (grocery.section) values[sectionColumn] = grocery.section
     if (grocery.units) values[unitsColumn] = grocery.units
 
     const wasUpdated = await db.updateSingle(tablename, {

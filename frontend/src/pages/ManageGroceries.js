@@ -34,8 +34,8 @@ const ManageGroceries = () => {
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 90 },
-        { field: 'name', headerName: 'Name', minWidth: 250, flex: 1 },
-        { field: 'sections', headerName: 'Sections', minWidth: 250, flex: 1 },
+        { field: 'name', headerName: 'Name', minWidth: 200, flex: 1 },
+        { field: 'section', headerName: 'Section', minWidth: 200, flex: 1 },
         { field: 'units', headerName: 'Units', width: 100 },
     ]
 

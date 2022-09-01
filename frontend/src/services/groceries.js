@@ -2,12 +2,12 @@ import axios from 'axios'
 import tokenService from './token'
 const baseUrl = '/api/groceries'
 
-const addGrocery = async ({ name, aliases, sections, units }) => {
+const addGrocery = async ({ name, section, units }) => {
     try {
         const token = tokenService.getToken()
         const response = await axios.post(
             baseUrl,
-            { name, aliases, sections, units },
+            { name, section, units },
             { headers: { Authorization: `Bearer ${token}` } }
         )
         return {
@@ -69,12 +69,12 @@ const getGroceryById = async (id) => {
     }
 }
 
-const updateGrocery = async ({ id, name, aliases, sections, units }) => {
+const updateGrocery = async ({ id, name, section, units }) => {
     try {
         const token = tokenService.getToken()
         const response = await axios.put(
             `${baseUrl}/${id}`,
-            { name, aliases, sections, units },
+            { id, name, section, units },
             { headers: { Authorization: `Bearer ${token}` } }
         )
         return {
