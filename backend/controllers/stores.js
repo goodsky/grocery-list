@@ -3,6 +3,8 @@ const Router = require('express')
 const logger = require('../utils/logger')
 const middleware = require('../utils/middleware')
 const storeDb = require('../models/store')
+const aisleDb = require('../models/storeAisle')
+const sectionDb = require('../models/storeSection')
 
 const router = Router()
 
@@ -31,9 +33,10 @@ router.get('/', middleware.tokenRequired, async (request, response) => {
     response.status(200).json(stores)
 })
 
-// GET /api/stores/:id
+// GET /api/stores/:id(?aisles=true)
 router.get('/:id', middleware.tokenRequired, async (request, response) => {
     const { id } = request.params
+    const populateAisles = request.query.aisles === 'true'
 
     const idInt = parseInt(id, 10)
     if (!idInt) {
@@ -46,6 +49,20 @@ router.get('/:id', middleware.tokenRequired, async (request, response) => {
     if (!store) {
         response.sendStatus(404)
         return
+    }
+
+    if (populateAisles) {
+        const aisles = await aisleDb.getAislesByStoreId(idInt)
+        const sectionPromises = aisles.map((aisle) => sectionDb.getSectionsByAisleId(aisle.id))
+        const sections = await Promise.all(sectionPromises)
+
+        const aislesWithSections = aisles.map((aisle, i) => ({
+            name: aisle.name,
+            position: aisle.position,
+            sections: sections[i],
+        }))
+
+        store.aisles = aislesWithSections
     }
 
     response.status(200).json(store)

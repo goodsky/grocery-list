@@ -184,6 +184,11 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/stores/{{id}}
 Authorization: Bearer {{token}}
 
+### Get Store by id with Aisles & Sections Populated
+# @prompt id
+GET {{host}}/api/stores/{{id}}?aisles=true
+Authorization: Bearer {{token}}
+
 ### Update Store
 # @prompt id
 # @prompt newaddress
