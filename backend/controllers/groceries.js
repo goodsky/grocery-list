@@ -62,7 +62,6 @@ router.put('/:id', middleware.tokenAdminRequired, async (request, response) => {
         return
     }
 
-    console.log('update grocery', request.body)
     const idFromBody = request.body.id
     if (idInt !== idFromBody) {
         response.status(400).json({ error: 'id in body and path do not match' })

@@ -8,7 +8,14 @@ const helpers = require('./helpers')
 
 // I thought this was fun.
 // Is it a good idea? ... I don't know.
-const crudTests = (url, noun, db, body, { create, retrieveAll, retrieveById, update, remove }, username) => {
+const crudTests = (
+    url,
+    noun,
+    db,
+    body,
+    { create, retrieveAll, retrieveById, update, remove },
+    username = 'some_user'
+) => {
     afterEach(() => {
         sinon.restore()
     })

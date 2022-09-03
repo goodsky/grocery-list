@@ -200,3 +200,75 @@ Content-Type: application/json
 # @prompt id
 DELETE {{host}}/api/stores/{{id}}
 Authorization: Bearer {{token}}
+
+### --- STORE AISLES -------------------------------------------------------------------
+
+### Add Asile
+# @prompt storeId
+# @prompt name
+# @prompt position
+POST {{host}}/api/stores/{{storeId}}/aisles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "{{name}}",
+    "position": {{position}}
+}
+
+### Get Aisles
+# @prompt storeId
+GET {{host}}/api/stores/{{storeId}}/aisles
+Authorization: Bearer {{token}}
+
+### Update Aisle
+# @prompt storeId
+# @prompt aisleId
+# @prompt newname
+# @prompt newposition
+PUT {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "id": {{aisleId}},
+    "name": "{{newname}}",
+    "position": {{newposition}}
+}
+
+### Delete Aisle
+# @prompt storeId
+# @prompt aisleId
+DELETE {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}
+Authorization: Bearer {{token}}
+
+### --- STORE SECTIONS -------------------------------------------------------------------
+
+### Add Section
+# @prompt storeId
+# @prompt aisleId
+# @prompt name
+POST {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}/sections
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "{{name}}"
+}
+
+### Get Sections
+# @prompt storeId
+# @prompt aisleId
+GET {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}/sections
+Authorization: Bearer {{token}}
+
+### Delete Section
+# @prompt storeId
+# @prompt aisleId
+# @prompt name
+DELETE {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}/sections/{{name}}
+Authorization: Bearer {{token}}
+
+### Get ALL Sections
+GET {{host}}/api/sections
+Authorization: Bearer {{token}}
