@@ -70,6 +70,7 @@ router.get('/:storeId/aisles', middleware.tokenRequired, async (request, respons
 })
 
 // PUT /api/stores/:storeId/aisles
+// Helper API: Set the order for all aisles in one call
 router.put('/:storeId/aisles', middleware.tokenAdminRequired, async (request, response) => {
     const storeId = getStoreId(request, response)
     if (!storeId) {

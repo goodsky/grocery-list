@@ -83,6 +83,41 @@ router.get('/:storeId/aisles/:aisleId/sections', middleware.tokenRequired, async
     response.status(200).json(sections)
 })
 
+// PUT /api/stores/:storeId/aisles/:aisleId/sections
+// Helper API: Set all sections for this aisle in one call
+router.put('/:storeId/aisles/:aisleId/sections', middleware.tokenAdminRequired, async (request, response) => {
+    const storeId = getStoreId(request, response)
+    if (!storeId) {
+        return
+    }
+
+    const aisleId = getAisleId(request, response)
+    if (!aisleId) {
+        return
+    }
+
+    const { sections } = request.body
+    if (!sections || !Array.isArray(sections)) {
+        response.status(400).json({ error: 'Expected array of section names' })
+        return
+    }
+
+    const currentSections = await sectionDb.getSectionsByAisleId(aisleId)
+
+    const deletePromises = currentSections
+        .filter((section) => sections.indexOf(section) === -1)
+        .map((section) => sectionDb.deleteSection({ aisleId, name: section }))
+
+    const addPromises = sections
+        .filter((section) => currentSections.indexOf(section) === -1)
+        .map((section) => sectionDb.addSection({ aisleId, name: section }))
+
+    await Promise.all(deletePromises)
+    await Promise.all(addPromises)
+
+    response.sendStatus(204)
+})
+
 // DELETE /api/stores/:storeId/aisles/:aisleId/sections/:name
 router.delete('/:storeId/aisles/:aisleId/sections/:name', middleware.tokenAdminRequired, async (request, response) => {
     const storeId = getStoreId(request, response)

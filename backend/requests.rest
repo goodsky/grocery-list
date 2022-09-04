@@ -278,6 +278,18 @@ Content-Type: application/json
 GET {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}/sections
 Authorization: Bearer {{token}}
 
+### Set ALL Sections
+# @prompt storeId
+# @prompt aisleId
+# @prompt newSections
+PUT {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}/sections
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "sections": [ {{newSections}} ]
+}
+
 ### Delete Section
 # @prompt storeId
 # @prompt aisleId
