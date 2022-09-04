@@ -226,6 +226,17 @@ Content-Type: application/json
 GET {{host}}/api/stores/{{storeId}}/aisles
 Authorization: Bearer {{token}}
 
+### Reorder Aisles
+# @prompt storeId
+# @prompt newOrder
+PUT {{host}}/api/stores/{{storeId}}/aisles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "order": [ {{newOrder}} ]
+}
+
 ### Update Aisle
 # @prompt storeId
 # @prompt aisleId

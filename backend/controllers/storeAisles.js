@@ -69,6 +69,61 @@ router.get('/:storeId/aisles', middleware.tokenRequired, async (request, respons
     response.status(200).json(aisles)
 })
 
+// PUT /api/stores/:storeId/aisles
+router.put('/:storeId/aisles', middleware.tokenAdminRequired, async (request, response) => {
+    const storeId = getStoreId(request, response)
+    if (!storeId) {
+        return
+    }
+
+    const { order } = request.body
+    if (!order || !Array.isArray(order)) {
+        response.status(400).json({ error: 'Expected array of aisle ids' })
+        return
+    }
+
+    const aisles = await aisleDb.getAislesByStoreId(storeId)
+
+    const aisleIdsSorted = aisles.map((aisle) => aisle.id).sort()
+    const orderSorted = [...order].sort()
+
+    if (aisleIdsSorted.length !== orderSorted.length) {
+        response.status(400).json({
+            error: 'Must supply order for all aisles in the store',
+            expected: aisleIdsSorted,
+            supplied: orderSorted,
+        })
+        return
+    }
+
+    for (let i = 0; i < aisleIdsSorted.length; i++) {
+        if (aisleIdsSorted[i] !== orderSorted[i]) {
+            response.status(400).json({
+                error: 'Must supply order for all aisles in the store',
+                expected: aisleIdsSorted,
+                supplied: orderSorted,
+            })
+            return
+        }
+    }
+
+    const reorderedAisles = aisles.map((aisle) => ({
+        id: aisle.id,
+        name: aisle.name,
+        position: order.indexOf(aisle.id),
+    }))
+
+    const updatePromises = reorderedAisles.map((aisle) => aisleDb.updateAisle(aisle))
+    const updates = await Promise.all(updatePromises)
+    if (updates.some((updated) => !updated)) {
+        logger.error('Failed to reorder aisles.', reorderedAisles, updates)
+        response.status(500).json({ error: 'Failed to reorder aisles' })
+        return
+    }
+
+    response.status(200).json(reorderedAisles)
+})
+
 // PUT /api/stores/:storeId/aisles/:id
 router.put('/:storeId/aisles/:id', middleware.tokenAdminRequired, async (request, response) => {
     const storeId = getStoreId(request, response)
