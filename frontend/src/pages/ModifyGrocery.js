@@ -3,13 +3,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Autocomplete, Button, Container, Stack, TextField, Typography } from '@mui/material'
 import PopUp from '../components/PopUp'
 import groceryService from '../services/groceries'
-
-const tempSections = ['Test', 'Dairy', 'Frozen Treats', 'Beer', 'Cheese', 'Produce']
+import sectionsService from '../services/sections'
 
 const ModifyGrocery = ({ isEdit }) => {
     const [name, setName] = useState('')
     const [section, setSection] = useState('')
     const [units, setUnits] = useState('')
+    const [sectionAutocomplete, setSectionAutocomplete] = useState([])
 
     const popup = useRef()
     const navigate = useNavigate()
@@ -18,9 +18,9 @@ const ModifyGrocery = ({ isEdit }) => {
 
     if (isEdit) {
         if (!id) {
-            console.error('Missing id while modifying a grocery!!!')
+            console.error('Missing id while modifying a grocery!')
         } else if (!idInt) {
-            console.error('Invalid id while modifying a grocery!!!')
+            console.error('Invalid id while modifying a grocery!')
         }
     }
 
@@ -37,13 +37,22 @@ const ModifyGrocery = ({ isEdit }) => {
             } else {
                 popup.current.notify(`Failed to load grocery '${id}`, 'error', 5000)
             }
+        }
 
-            // TODO: load sections array to populate section autocomplete
+        const fetchSections = async () => {
+            const result = await sectionsService.getAllSections()
+            if (result.success) {
+                setSectionAutocomplete(result.sections)
+            } else {
+                console.warn('Failed to populate autocomplete for sections')
+            }
         }
 
         if (isEdit) {
             fetchGrocery(id)
         }
+
+        fetchSections()
     }, [isEdit, id])
 
     const handleSubmit = async (event) => {
@@ -66,15 +75,12 @@ const ModifyGrocery = ({ isEdit }) => {
         } else {
             console.log('Adding grocery', grocery)
             result = await groceryService.addGrocery(grocery)
-            if (!result.success) {
-                popup.current.notify('Uh oh! Adding grocery failed!', 'error', 5000)
-            }
         }
 
         if (result.success) {
             navigate('/groceries')
         } else {
-            popup.current.notify('Uh oh! Editing grocery failed!', 'error', 5000)
+            popup.current.notify(`Uh oh! Failed to ${isEdit ? 'modify' : 'add'} grocery!`, 'error', 5000)
         }
     }
 
@@ -91,7 +97,7 @@ const ModifyGrocery = ({ isEdit }) => {
                 />
                 <Autocomplete
                     freeSolo
-                    options={tempSections}
+                    options={sectionAutocomplete}
                     value={section}
                     onChange={(event, newValue) => setSection(newValue)}
                     onInputChange={(event, newValue) => setSection(newValue)}
