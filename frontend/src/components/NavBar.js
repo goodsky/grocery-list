@@ -7,6 +7,7 @@ const navButtons = [
     { label: 'home', url: '/' },
     { label: 'lists', url: '/lists' },
     { label: 'groceries', url: '/groceries' },
+    { label: 'stores', url: '/stores' },
 ]
 
 const NavBar = ({ userToken, logOut }) => {
