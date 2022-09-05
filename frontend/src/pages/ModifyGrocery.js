@@ -94,6 +94,7 @@ const ModifyGrocery = ({ isEdit }) => {
                     options={tempSections}
                     value={section}
                     onChange={(event, newValue) => setSection(newValue)}
+                    onInputChange={(event, newValue) => setSection(newValue)}
                     onKeyPress={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault()

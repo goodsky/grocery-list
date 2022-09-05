@@ -41,7 +41,7 @@ const ManageStores = () => {
 
     return (
         <>
-            <Typography variant="h1">Grocery Catalog</Typography>
+            <Typography variant="h1">Store Catalog</Typography>
             <Box sx={{ height: 400 }}>
                 <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
                     <Button
