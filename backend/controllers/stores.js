@@ -57,6 +57,7 @@ router.get('/:id', middleware.tokenRequired, async (request, response) => {
         const sections = await Promise.all(sectionPromises)
 
         const aislesWithSections = aisles.map((aisle, i) => ({
+            id: aisle.id,
             name: aisle.name,
             position: aisle.position,
             sections: sections[i],

@@ -1,12 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Button, Container, Stack, TextField, Typography } from '@mui/material'
+import {
+    Button,
+    Container,
+    IconButton,
+    ListItemIcon,
+    ListItemSecondaryAction,
+    ListItemText,
+    Paper,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material'
+import DragHandleIcon from '@mui/icons-material/DragHandle'
+import EditIcon from '@mui/icons-material/Edit'
 import PopUp from '../components/PopUp'
 import storeService from '../services/stores'
+import DraggableList from '../components/DraggableList'
 
 const ModifyStoreAisles = ({ isEdit }) => {
     const [name, setName] = useState('')
     const [address, setAddress] = useState('')
+    const [aisles, setAisles] = useState([])
 
     const popup = useRef()
     const navigate = useNavigate()
@@ -26,10 +41,11 @@ const ModifyStoreAisles = ({ isEdit }) => {
 
     useEffect(() => {
         const fetchStore = async (id) => {
-            const result = await storeService.getStoreById(id)
+            const result = await storeService.getStoreById(id, true)
             if (result.success) {
                 setName(result.store.name)
                 setAddress(result.store.address)
+                setAisles(result.store.aisles)
             } else {
                 popup.current.notify(`Failed to load store '${id}`, 'error', 5000)
             }
@@ -68,6 +84,30 @@ const ModifyStoreAisles = ({ isEdit }) => {
         }
     }
 
+    const handleAisleReorder = (result) => {
+        if (!result.destination) {
+            return
+        }
+
+        const sourceIndex = result.source.index
+        const destinationIndex = result.destination.index
+        if (sourceIndex === destinationIndex) {
+            return
+        }
+
+        const sourceAisle = aisles[sourceIndex]
+        let aislesReorder = aisles.slice(0)
+        for (let i = sourceIndex; i < destinationIndex; i++) {
+            aislesReorder[i] = aislesReorder[i + 1]
+        }
+        for (let i = sourceIndex; i > destinationIndex; i--) {
+            aislesReorder[i] = aislesReorder[i - 1]
+        }
+        aislesReorder[destinationIndex] = sourceAisle
+
+        setAisles(aislesReorder)
+    }
+
     return (
         <Container maxWidth="sm">
             <Typography variant="h2">{title}</Typography>
@@ -86,6 +126,32 @@ const ModifyStoreAisles = ({ isEdit }) => {
                     variant="standard"
                     onChange={(event) => setAddress(event.target.value)}
                 />
+                <Paper>
+                    <DraggableList
+                        items={aisles}
+                        itemToKey={(aisle) => aisle.id.toString()}
+                        itemToElement={(aisle) => (
+                            <>
+                                <ListItemIcon>
+                                    <DragHandleIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={aisle.name} />
+                                <ListItemSecondaryAction>
+                                    <IconButton>
+                                        <EditIcon />
+                                    </IconButton>
+                                </ListItemSecondaryAction>
+                            </>
+                        )}
+                        onDragEnd={handleAisleReorder}
+                    />
+                    <Stack>
+                        <Typography sx={{ m: 1 }}>{aisles.length} Aisles</Typography>
+                        <Button sx={{ m: 1 }} color="primary" variant="contained">
+                            Add Aisle
+                        </Button>
+                    </Stack>
+                </Paper>
                 <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">
                     {buttonVerb}
