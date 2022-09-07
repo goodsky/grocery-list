@@ -7,7 +7,7 @@ import ManageGroceries from './pages/ManageGroceries'
 import ManageLists from './pages/ManageLists'
 import ManageStores from './pages/ManageStores'
 import ModifyGrocery from './pages/ModifyGrocery'
-import ModifyStoreAisles from './pages/ModifyStoreAisles'
+import ModifyStore from './pages/ModifyStore'
 import NavBar from './components/NavBar'
 import NotFound from './pages/NotFound'
 import Register from './pages/Register'
@@ -70,8 +70,8 @@ function App() {
                 <Route path="/groceries/edit/:id" element={<ModifyGrocery isEdit={true} />} />
                 <Route path="/lists" element={<ManageLists />} />
                 <Route path="/stores" element={<ManageStores />} />
-                <Route path="/stores/add" element={<ModifyStoreAisles isEdit={false} />} />
-                <Route path="/stores/edit/:id" element={<ModifyStoreAisles isEdit={true} />} />
+                <Route path="/stores/add" element={<ModifyStore isEdit={false} />} />
+                <Route path="/stores/edit/:id" element={<ModifyStore isEdit={true} />} />
             </Routes>
         </Container>
     )

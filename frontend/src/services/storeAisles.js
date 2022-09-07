@@ -53,15 +53,15 @@ const getAisles = async (storeId) => {
     }
 }
 
-const reorderAisles = async (storeId, order) => {
+const setAllAisles = async (storeId, aisles) => {
     try {
         const token = tokenService.getToken()
-        await axios.put(`baseUrl/${storeId}/aisles`, { order }, { headers: { Authorization: `Bearer ${token}` } })
+        await axios.put(`baseUrl/${storeId}/aisles`, { aisles }, { headers: { Authorization: `Bearer ${token}` } })
         return {
             success: true,
         }
     } catch (error) {
-        console.log('Reorder aisles failed', error)
+        console.log('Set all aisles failed', error)
         return {
             success: false,
         }
@@ -88,5 +88,5 @@ const updateAisle = async (storeId, { id, name, position }) => {
     }
 }
 
-const aislesService = { addAisle, deleteAisle, getAisles, reorderAisles, updateAisle }
+const aislesService = { addAisle, deleteAisle, getAisles, setAllAisles, updateAisle }
 export default aislesService

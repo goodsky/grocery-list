@@ -6,7 +6,7 @@ const DraggableList = ({ items, itemToKey, itemToElement, onDragEnd }) => {
         <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="aisles">
                 {(provided) => (
-                    <List ref={provided.innerRef} sx={{ maxHeight: 300 }}>
+                    <List ref={provided.innerRef} sx={{ maxHeight: 200, overflow: 'auto' }}>
                         {items.map((item, index) => (
                             <DraggableListItem
                                 item={item}
@@ -41,7 +41,7 @@ const DraggableListItem = ({ item, index, itemToKey, itemToElement }) => {
                     {...provided.dragHandleProps}
                     style={getStyle(snapshot.isDragging, provided.draggableProps.style)}
                 >
-                    {itemToElement(item)}
+                    {itemToElement(item, index)}
                 </ListItem>
             )}
         </Draggable>

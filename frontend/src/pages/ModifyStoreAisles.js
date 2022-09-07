@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
     Button,
     Container,
@@ -18,43 +18,23 @@ import PopUp from '../components/PopUp'
 import storeService from '../services/stores'
 import DraggableList from '../components/DraggableList'
 
-const ModifyStoreAisles = ({ isEdit }) => {
-    const [name, setName] = useState('')
-    const [address, setAddress] = useState('')
-    const [aisles, setAisles] = useState([])
-
+const ModifyStoreAisles = ({
+    id,
+    isEdit,
+    name,
+    setName,
+    address,
+    setAddress,
+    aisles,
+    setAisles,
+    addAisle,
+    updateAisle,
+}) => {
     const popup = useRef()
     const navigate = useNavigate()
-    const { id } = useParams()
-    const idInt = parseInt(id, 10)
-
-    if (isEdit) {
-        if (!id) {
-            console.error('Missing id while modifying a store!')
-        } else if (!idInt) {
-            console.error('Invalid id while modifying a store!')
-        }
-    }
 
     const title = isEdit ? 'Modify a Store' : 'Add a Store'
     const buttonVerb = isEdit ? 'Edit' : 'Add'
-
-    useEffect(() => {
-        const fetchStore = async (id) => {
-            const result = await storeService.getStoreById(id, true)
-            if (result.success) {
-                setName(result.store.name)
-                setAddress(result.store.address)
-                setAisles(result.store.aisles)
-            } else {
-                popup.current.notify(`Failed to load store '${id}`, 'error', 5000)
-            }
-        }
-
-        if (isEdit) {
-            fetchStore(id)
-        }
-    }, [isEdit, id])
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -67,7 +47,7 @@ const ModifyStoreAisles = ({ isEdit }) => {
         let result = {}
         if (isEdit) {
             const updatedStore = {
-                id: idInt,
+                id,
                 ...store,
             }
             console.log('Updating store', updatedStore)
@@ -113,6 +93,7 @@ const ModifyStoreAisles = ({ isEdit }) => {
             <Typography variant="h2">{title}</Typography>
             <Stack component="form" spacing={2} onSubmit={handleSubmit}>
                 <TextField
+                    autoFocus
                     required
                     label="Name"
                     value={name}
@@ -126,18 +107,24 @@ const ModifyStoreAisles = ({ isEdit }) => {
                     variant="standard"
                     onChange={(event) => setAddress(event.target.value)}
                 />
-                <Paper>
+                <Paper sx={{ p: 1 }}>
+                    <Stack>
+                        <Typography sx={{ m: 1 }}>{aisles.length} Aisles</Typography>
+                        <Button sx={{ m: 1 }} color="primary" variant="contained" onClick={() => addAisle()}>
+                            Add Aisle
+                        </Button>
+                    </Stack>
                     <DraggableList
                         items={aisles}
                         itemToKey={(aisle) => aisle.id.toString()}
-                        itemToElement={(aisle) => (
+                        itemToElement={(aisle, index) => (
                             <>
                                 <ListItemIcon>
                                     <DragHandleIcon />
                                 </ListItemIcon>
                                 <ListItemText primary={aisle.name} />
                                 <ListItemSecondaryAction>
-                                    <IconButton>
+                                    <IconButton onClick={() => updateAisle(index)}>
                                         <EditIcon />
                                     </IconButton>
                                 </ListItemSecondaryAction>
@@ -145,12 +132,6 @@ const ModifyStoreAisles = ({ isEdit }) => {
                         )}
                         onDragEnd={handleAisleReorder}
                     />
-                    <Stack>
-                        <Typography sx={{ m: 1 }}>{aisles.length} Aisles</Typography>
-                        <Button sx={{ m: 1 }} color="primary" variant="contained">
-                            Add Aisle
-                        </Button>
-                    </Stack>
                 </Paper>
                 <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">

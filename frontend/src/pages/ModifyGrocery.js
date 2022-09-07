@@ -89,6 +89,7 @@ const ModifyGrocery = ({ isEdit }) => {
             <Typography variant="h2">{title}</Typography>
             <Stack component="form" spacing={2} onSubmit={handleSubmit}>
                 <TextField
+                    autoFocus
                     required
                     label="Name"
                     value={name}

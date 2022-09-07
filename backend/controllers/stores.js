@@ -70,6 +70,7 @@ router.get('/:id', middleware.tokenRequired, async (request, response) => {
 })
 
 // PUT /api/stores/:id
+// TODO: I think I should just make this the mega store endpoint... why bother with aisles and sections separately?
 router.put('/:id', middleware.tokenAdminRequired, async (request, response) => {
     const { id } = request.params
 
