@@ -54,6 +54,13 @@ const deleteAisle = async (id) => {
 
     await db.removeSingle(tablename, { filters: { [idColumn]: id } })
 }
+
+const deleteAislesByStoreId = async (storeId) => {
+    await init()
+
+    await db.remove(tablename, { filters: { [storeIdColumn]: storeId } })
+}
+
 const getAislesByStoreId = async (storeId) => {
     await init()
 
@@ -61,7 +68,7 @@ const getAislesByStoreId = async (storeId) => {
         columns: [idColumn, storeIdColumn, nameColumn, positionColumn],
         filters: { [storeIdColumn]: storeId },
     })
-    return aisles.map((row) => convertRowToAisle(row))
+    return aisles.map((row) => convertRowToAisle(row)).sort((a, b) => a.position - b.position)
 }
 
 const updateAisle = async (aisle) => {
@@ -70,7 +77,7 @@ const updateAisle = async (aisle) => {
     const values = {}
     if (aisle.storeId) values[storeIdColumn] = aisle.storeId
     if (aisle.name) values[nameColumn] = aisle.name
-    if (aisle.position) values[positionColumn] = aisle.position
+    if (Number.isInteger(aisle.position)) values[positionColumn] = aisle.position
 
     const wasUpdated = await db.updateSingle(tablename, {
         values,
@@ -85,6 +92,7 @@ module.exports = {
     primaryKey: idColumn,
     addAisle,
     deleteAisle,
+    deleteAislesByStoreId,
     getAislesByStoreId,
     updateAisle,
 }

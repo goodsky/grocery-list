@@ -3,6 +3,7 @@ const Router = require('express')
 const logger = require('../utils/logger')
 const middleware = require('../utils/middleware')
 const aisleDb = require('../models/storeAisle')
+const sectionDb = require('../models/storeSection')
 
 const router = Router()
 
@@ -58,14 +59,29 @@ router.post('/:storeId/aisles', middleware.tokenAdminRequired, async (request, r
     response.status(201).json(addedAisle)
 })
 
-// GET /api/stores/:storeId/aisles
+// GET /api/stores/:storeId/aisles(?all=true)
 router.get('/:storeId/aisles', middleware.tokenRequired, async (request, response) => {
     const storeId = getStoreId(request, response)
     if (!storeId) {
         return
     }
 
-    const aisles = await aisleDb.getAislesByStoreId(storeId)
+    const getAll = request.query.all === 'true'
+
+    let aisles = await aisleDb.getAislesByStoreId(storeId)
+
+    if (getAll) {
+        const sectionPromises = aisles.map((aisle) => sectionDb.getSectionsByAisleId(aisle.id))
+        const sections = await Promise.all(sectionPromises)
+
+        aisles = aisles.map((aisle, i) => ({
+            id: aisle.id,
+            name: aisle.name,
+            position: aisle.position,
+            sections: sections[i],
+        }))
+    }
+
     response.status(200).json(aisles)
 })
 
@@ -163,6 +179,7 @@ router.put('/:storeId/aisles/:id', middleware.tokenAdminRequired, async (request
 router.delete('/:storeId/aisles/:id', middleware.tokenAdminRequired, async (request, response) => {
     const id = getId(request, response)
 
+    await sectionDb.deleteSectionByAisleId(id)
     await aisleDb.deleteAisle(id)
 
     response.sendStatus(204)

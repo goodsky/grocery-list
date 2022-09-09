@@ -52,7 +52,7 @@ const getStores = async () => {
 const getStoreById = async (id, all = false) => {
     try {
         const token = tokenService.getToken()
-        const response = await axios.get(`${baseUrl}/${id}?aisles=${all}`, {
+        const response = await axios.get(`${baseUrl}/${id}?all=${all}`, {
             headers: { Authorization: `Bearer ${token}` },
         })
         return {

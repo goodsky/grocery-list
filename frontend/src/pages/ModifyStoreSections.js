@@ -15,7 +15,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import PopUp from '../components/PopUp'
 
-const ModifyStoreSections = ({ aisle, isEdit, addAisle, updateAisle, navigateBack }) => {
+const ModifyStoreSections = ({ aisle, dispatch, isEdit }) => {
     const [name, setName] = useState(isEdit ? aisle.name : '')
     const [sections, setSections] = useState(isEdit ? aisle.sections : [])
     const [newSection, setNewSection] = useState('')
@@ -35,9 +35,7 @@ const ModifyStoreSections = ({ aisle, isEdit, addAisle, updateAisle, navigateBac
             return
         }
 
-        const newSections = sections.concat(newSection)
-        setSections(newSections)
-
+        setSections(sections.concat(newSection))
         setNewSection('')
     }
 
@@ -49,24 +47,15 @@ const ModifyStoreSections = ({ aisle, isEdit, addAisle, updateAisle, navigateBac
     const handleSubmit = (event) => {
         event.preventDefault()
 
-        const newAisle = {
-            name,
-            sections,
-        }
-
         if (isEdit) {
-            const updatedAisle = {
-                id: aisle.id,
-                ...newAisle,
-            }
-            console.log('Updating aisle', updatedAisle)
-            updateAisle(updatedAisle)
+            const updatedAisle = { ...aisle, name, sections }
+            dispatch({ type: 'updateAisle', aisle: updatedAisle })
         } else {
-            console.log('Adding aisle', newAisle)
-            addAisle(newAisle)
+            const newAisle = { name, sections }
+            dispatch({ type: 'addAisle', aisle: newAisle })
         }
 
-        navigateBack()
+        // NB: the add/update aisle actions also navigate the page back to the store aisles
     }
 
     return (
@@ -125,7 +114,7 @@ const ModifyStoreSections = ({ aisle, isEdit, addAisle, updateAisle, navigateBac
                 <Button type="submit" color="primary" variant="contained">
                     {buttonVerb}
                 </Button>
-                <Button color="secondary" variant="contained" onClick={() => navigateBack()}>
+                <Button color="secondary" variant="contained" onClick={() => dispatch({ type: 'cancelAisleUpdate' })}>
                     Cancel
                 </Button>
             </Stack>

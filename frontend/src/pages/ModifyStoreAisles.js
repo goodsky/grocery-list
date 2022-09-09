@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
     Button,
     Container,
@@ -13,56 +13,16 @@ import {
     Typography,
 } from '@mui/material'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
+import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import PopUp from '../components/PopUp'
-import storeService from '../services/stores'
 import DraggableList from '../components/DraggableList'
 
-const ModifyStoreAisles = ({
-    id,
-    isEdit,
-    name,
-    setName,
-    address,
-    setAddress,
-    aisles,
-    setAisles,
-    addAisle,
-    updateAisle,
-}) => {
+const ModifyStoreAisles = ({ dispatch, isEdit, store, submitChanges }) => {
     const popup = useRef()
-    const navigate = useNavigate()
 
     const title = isEdit ? 'Modify a Store' : 'Add a Store'
     const buttonVerb = isEdit ? 'Edit' : 'Add'
-
-    const handleSubmit = async (event) => {
-        event.preventDefault()
-
-        const store = {
-            name,
-            address,
-        }
-
-        let result = {}
-        if (isEdit) {
-            const updatedStore = {
-                id,
-                ...store,
-            }
-            console.log('Updating store', updatedStore)
-            result = await storeService.updateStore(updatedStore)
-        } else {
-            console.log('Adding store', store)
-            result = await storeService.addStore(store)
-        }
-
-        if (result.success) {
-            navigate('/stores')
-        } else {
-            popup.current.notify(`Uh oh! Failed to ${isEdit ? 'modify' : 'add'} store!`, 'error', 5000)
-        }
-    }
 
     const handleAisleReorder = (result) => {
         if (!result.destination) {
@@ -75,8 +35,8 @@ const ModifyStoreAisles = ({
             return
         }
 
-        const sourceAisle = aisles[sourceIndex]
-        let aislesReorder = aisles.slice(0)
+        const sourceAisle = store.aisles[sourceIndex]
+        let aislesReorder = store.aisles.slice(0)
         for (let i = sourceIndex; i < destinationIndex; i++) {
             aislesReorder[i] = aislesReorder[i + 1]
         }
@@ -85,7 +45,12 @@ const ModifyStoreAisles = ({
         }
         aislesReorder[destinationIndex] = sourceAisle
 
-        setAisles(aislesReorder)
+        dispatch({ type: 'updateAllAisles', aisles: aislesReorder })
+    }
+
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+        await submitChanges()
     }
 
     return (
@@ -96,26 +61,31 @@ const ModifyStoreAisles = ({
                     autoFocus
                     required
                     label="Name"
-                    value={name}
+                    value={store.name}
                     variant="standard"
-                    onChange={(event) => setName(event.target.value)}
+                    onChange={(event) => dispatch({ type: 'updateName', name: event.target.value })}
                 />
                 <TextField
                     required
                     label="Address"
-                    value={address}
+                    value={store.address}
                     variant="standard"
-                    onChange={(event) => setAddress(event.target.value)}
+                    onChange={(event) => dispatch({ type: 'updateAddress', address: event.target.value })}
                 />
                 <Paper sx={{ p: 1 }}>
                     <Stack>
-                        <Typography sx={{ m: 1 }}>{aisles.length} Aisles</Typography>
-                        <Button sx={{ m: 1 }} color="primary" variant="contained" onClick={() => addAisle()}>
+                        <Typography sx={{ m: 1 }}>{store.aisles.length} Aisles</Typography>
+                        <Button
+                            sx={{ m: 1 }}
+                            color="primary"
+                            variant="contained"
+                            onClick={() => dispatch({ type: 'modifyNewAisle' })}
+                        >
                             Add Aisle
                         </Button>
                     </Stack>
                     <DraggableList
-                        items={aisles}
+                        items={store.aisles}
                         itemToKey={(aisle) => aisle.id.toString()}
                         itemToElement={(aisle, index) => (
                             <>
@@ -124,8 +94,11 @@ const ModifyStoreAisles = ({
                                 </ListItemIcon>
                                 <ListItemText primary={aisle.name} />
                                 <ListItemSecondaryAction>
-                                    <IconButton onClick={() => updateAisle(index)}>
+                                    <IconButton onClick={() => dispatch({ type: 'modifyExistingAisle', index })}>
                                         <EditIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => dispatch({ type: 'deleteAisle', index })}>
+                                        <DeleteIcon />
                                     </IconButton>
                                 </ListItemSecondaryAction>
                             </>

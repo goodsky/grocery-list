@@ -6,7 +6,7 @@ const addAisle = async (storeId, { name, position }) => {
     try {
         const token = tokenService.getToken()
         const response = await axios.post(
-            `baseUrl/${storeId}/aisles`,
+            `${baseUrl}/${storeId}/aisles`,
             { name, position },
             { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -37,10 +37,12 @@ const deleteAisle = async (storeId, id) => {
     }
 }
 
-const getAisles = async (storeId) => {
+const getAisles = async (storeId, all = false) => {
     try {
         const token = tokenService.getToken()
-        const response = await axios.get(`baseUrl/${storeId}/aisles`, { headers: { Authorization: `Bearer ${token}` } })
+        const response = await axios.get(`${baseUrl}/${storeId}/aisles?all=${all}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
         return {
             success: true,
             aisles: response.data,
@@ -53,15 +55,15 @@ const getAisles = async (storeId) => {
     }
 }
 
-const setAllAisles = async (storeId, aisles) => {
+const reorderAisles = async (storeId, order) => {
     try {
         const token = tokenService.getToken()
-        await axios.put(`baseUrl/${storeId}/aisles`, { aisles }, { headers: { Authorization: `Bearer ${token}` } })
+        await axios.put(`${baseUrl}/${storeId}/aisles`, { order }, { headers: { Authorization: `Bearer ${token}` } })
         return {
             success: true,
         }
     } catch (error) {
-        console.log('Set all aisles failed', error)
+        console.log('Reorder aisles failed', error)
         return {
             success: false,
         }
@@ -88,5 +90,5 @@ const updateAisle = async (storeId, { id, name, position }) => {
     }
 }
 
-const aislesService = { addAisle, deleteAisle, getAisles, setAllAisles, updateAisle }
+const aislesService = { addAisle, deleteAisle, getAisles, reorderAisles, updateAisle }
 export default aislesService

@@ -33,10 +33,10 @@ router.get('/', middleware.tokenRequired, async (request, response) => {
     response.status(200).json(stores)
 })
 
-// GET /api/stores/:id(?aisles=true)
+// GET /api/stores/:id(?all=true)
 router.get('/:id', middleware.tokenRequired, async (request, response) => {
     const { id } = request.params
-    const populateAisles = request.query.aisles === 'true'
+    const getAll = request.query.all === 'true'
 
     const idInt = parseInt(id, 10)
     if (!idInt) {
@@ -51,7 +51,7 @@ router.get('/:id', middleware.tokenRequired, async (request, response) => {
         return
     }
 
-    if (populateAisles) {
+    if (getAll) {
         const aisles = await aisleDb.getAislesByStoreId(idInt)
         const sectionPromises = aisles.map((aisle) => sectionDb.getSectionsByAisleId(aisle.id))
         const sections = await Promise.all(sectionPromises)
@@ -70,7 +70,6 @@ router.get('/:id', middleware.tokenRequired, async (request, response) => {
 })
 
 // PUT /api/stores/:id
-// TODO: I think I should just make this the mega store endpoint... why bother with aisles and sections separately?
 router.put('/:id', middleware.tokenAdminRequired, async (request, response) => {
     const { id } = request.params
 
@@ -112,6 +111,11 @@ router.delete('/:id', middleware.tokenAdminRequired, async (request, response) =
         return
     }
 
+    const aisleIds = await aisleDb.getAislesByStoreId(idInt)
+    const sectionPromises = aisleIds.map((aisleId) => sectionDb.deleteSectionByAisleId(aisleId))
+
+    await Promise.all(sectionPromises)
+    await aisleDb.deleteAislesByStoreId(idInt)
     await storeDb.deleteStore(idInt)
 
     response.sendStatus(204)

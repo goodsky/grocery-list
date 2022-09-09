@@ -46,6 +46,12 @@ const deleteSection = async ({ aisleId, name }) => {
     await db.removeSingle(tablename, { filters: { [aisleIdColumn]: aisleId, [nameColumn]: name } })
 }
 
+const deleteSectionByAisleId = async (aisleId) => {
+    await init()
+
+    await db.remove(tablename, { filters: { [aisleIdColumn]: aisleId } })
+}
+
 const getAllSections = async () => {
     await init()
 
@@ -69,6 +75,7 @@ module.exports = {
     tablename,
     addSection,
     deleteSection,
+    deleteSectionByAisleId,
     getAllSections,
     getSectionsByAisleId,
 }

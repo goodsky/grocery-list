@@ -3,6 +3,8 @@ const { Client } = require('pg')
 const config = require('./config')
 const logger = require('./logger')
 
+const queryLogging = false
+
 class DbQueryFailed extends Error {
     constructor(message) {
         super(message)
@@ -28,6 +30,10 @@ const query = async (text, params) => {
             logger.info('Connecting to PostgreSQL')
             await client.connect()
             isConnected = true
+        }
+
+        if (queryLogging) {
+            logger.info('PostgreSQL>', text, params)
         }
 
         return await client.query(text, params)

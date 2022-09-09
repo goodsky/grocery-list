@@ -6,7 +6,7 @@ const addSection = async (storeId, aisleId, name) => {
     try {
         const token = tokenService.getToken()
         const response = await axios.post(
-            `baseUrl/${storeId}/aisles/${aisleId}/sections`,
+            `${baseUrl}/${storeId}/aisles/${aisleId}/sections`,
             { name },
             { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -42,7 +42,7 @@ const deleteSection = async (storeId, aisleId, name) => {
 const getSections = async (storeId, aisleId) => {
     try {
         const token = tokenService.getToken()
-        const response = await axios.get(`baseUrl/${storeId}/aisles/${aisleId}/sections`, {
+        const response = await axios.get(`${baseUrl}/${storeId}/aisles/${aisleId}/sections`, {
             headers: { Authorization: `Bearer ${token}` },
         })
         return {
@@ -61,7 +61,7 @@ const setAllSections = async (storeId, aisleId, sections) => {
     try {
         const token = tokenService.getToken()
         await axios.put(
-            `baseUrl/${storeId}/aisles/${aisleId}/sections`,
+            `${baseUrl}/${storeId}/aisles/${aisleId}/sections`,
             { sections },
             { headers: { Authorization: `Bearer ${token}` } }
         )
