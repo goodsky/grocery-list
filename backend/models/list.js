@@ -6,6 +6,7 @@ const idColumn = 'id'
 const nameColumn = 'name'
 const ownerColumn = 'owner'
 const createdDateColumn = 'created'
+const shoppingDate = 'date'
 
 let hasInit = false
 const init = async () => {
@@ -15,6 +16,7 @@ const init = async () => {
             [nameColumn]: 'TEXT',
             [ownerColumn]: `TEXT REFERENCES ${userDb.tablename}(${userDb.primaryKey})`,
             [createdDateColumn]: 'TIMESTAMP WITH TIME ZONE',
+            [shoppingDate]: 'DATE',
         })
 
         hasInit = true

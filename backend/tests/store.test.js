@@ -4,6 +4,8 @@ const supertest = require('supertest')
 const app = require('../app')
 const crudTests = require('./crudtests')
 const storeDb = require('../models/store')
+const aislesDb = require('../models/storeAisle')
+const sectionDb = require('../models/storeSection')
 const helpers = require('./helpers')
 
 describe('Stores Controller', () => {
@@ -52,6 +54,10 @@ describe('Stores Controller', () => {
             },
             remove: {
                 method: 'deleteStore',
+                beforeEach: () => {
+                    sinon.stub(aislesDb, 'getAislesByStoreId').resolves([])
+                    sinon.stub(aislesDb, 'deleteAislesByStoreId')
+                },
                 additionalTests: () => {
                     it('should not delete store if not admin', async () => {
                         await supertest(app)

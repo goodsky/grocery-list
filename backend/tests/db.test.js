@@ -27,11 +27,18 @@ describe('PostgreSQL db wrapper', () => {
             col4: 'BOOLEAN',
         })
 
-        assert(queryStub.calledOnce)
+        // Expect create then later with columns
+        assert(queryStub.calledTwice)
         const queryText = queryStub.getCall(0).args[0]
         assert.equal(
             queryText,
             'CREATE TABLE IF NOT EXISTS testtable (col1 SERIAL, col2 TEXT PRIMARY KEY, col3 TIMESTAMP WITH TIME ZONE, col4 BOOLEAN)'
+        )
+
+        const alterText = queryStub.getCall(1).args[0]
+        assert.equal(
+            alterText,
+            'ALTER TABLE testtable ADD COLUMN IF NOT EXISTS col1 SERIAL, ADD COLUMN IF NOT EXISTS col2 TEXT PRIMARY KEY, ADD COLUMN IF NOT EXISTS col3 TIMESTAMP WITH TIME ZONE, ADD COLUMN IF NOT EXISTS col4 BOOLEAN'
         )
     })
 

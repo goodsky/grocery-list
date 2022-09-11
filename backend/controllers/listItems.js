@@ -14,7 +14,7 @@ const userIsOwner = async (listId, username) => {
 
 // POST /api/lists/:listId/items
 router.post('/:listId/items/', middleware.tokenRequired, async (request, response) => {
-    const { groceryId, storeId, amount, unit, multiplier } = request.body
+    const { groceryId, storeId, amount, unit, note } = request.body
     const { listId } = request.params
     const { username } = request.claims
 
@@ -35,7 +35,7 @@ router.post('/:listId/items/', middleware.tokenRequired, async (request, respons
         storeId,
         amount,
         unit,
-        multiplier,
+        note,
         pickedUp: false,
     }
 
@@ -107,14 +107,14 @@ router.put('/:listId/items/:id', middleware.tokenRequired, async (request, respo
         return
     }
 
-    const { groceryId, storeId, amount, unit, multiplier, pickedUp } = request.body
+    const { groceryId, storeId, amount, unit, note, pickedUp } = request.body
     const updatedItem = {
         id: idInt,
         groceryId,
         storeId,
         amount,
         unit,
-        multiplier,
+        note,
         pickedUp,
     }
 

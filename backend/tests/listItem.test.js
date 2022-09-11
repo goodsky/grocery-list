@@ -34,7 +34,7 @@ describe('List Items Controller', () => {
             pickedUp: false,
             amount: 28.5,
             unitOverride: 'oz',
-            multiplier: 2,
+            note: 'this is a note',
         },
         {
             create: {

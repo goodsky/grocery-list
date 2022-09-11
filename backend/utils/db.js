@@ -5,8 +5,15 @@ const createTable = async (tablename, tableDefinition) => {
         .map(([name, type]) => `${name} ${type}`)
         .reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)
 
-    const queryString = `CREATE TABLE IF NOT EXISTS ${tablename} (${columnString})`
-    await pgWrapper.query(queryString)
+    const createTableString = `CREATE TABLE IF NOT EXISTS ${tablename} (${columnString})`
+    await pgWrapper.query(createTableString)
+
+    const addColumnString = Object.entries(tableDefinition)
+        .map(([name, type]) => `ADD COLUMN IF NOT EXISTS ${name} ${type}`)
+        .reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)
+
+    const alterTableString = `ALTER TABLE ${tablename} ${addColumnString}`
+    await pgWrapper.query(alterTableString)
 }
 
 const insert = async (tablename, config) => {

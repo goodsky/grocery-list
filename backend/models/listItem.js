@@ -11,7 +11,7 @@ const storeIdColumn = 'storeid'
 const amountColumn = 'amount'
 const pickedUpColumn = 'pickedup'
 const unitColumn = 'unit'
-const multiplierColumn = 'multiplier'
+const noteColumn = 'note'
 
 let hasInit = false
 const init = async () => {
@@ -24,7 +24,7 @@ const init = async () => {
             [amountColumn]: 'DECIMAL',
             [pickedUpColumn]: 'BOOLEAN',
             [unitColumn]: 'TEXT',
-            [multiplierColumn]: 'INTEGER',
+            [noteColumn]: 'TEXT',
         })
 
         hasInit = true
@@ -44,7 +44,7 @@ const convertRowToListItem = (row) => {
         amount: row[amountColumn],
         pickedUp: row[pickedUpColumn],
         unit: row[unitColumn],
-        multiplier: row[multiplierColumn],
+        note: row[noteColumn],
     }
 }
 
@@ -59,7 +59,7 @@ const addListItem = async (item) => {
             [amountColumn]: item.amount,
             [pickedUpColumn]: item.pickedUp,
             [unitColumn]: item.unit,
-            [multiplierColumn]: item.multiplier,
+            [noteColumn]: item.note,
         },
         returning: [
             idColumn,
@@ -69,7 +69,7 @@ const addListItem = async (item) => {
             amountColumn,
             pickedUpColumn,
             unitColumn,
-            multiplierColumn,
+            noteColumn,
         ],
     })
 
@@ -92,7 +92,7 @@ const getListItemsByListId = async (listId) => {
     await init()
 
     const items = await db.select(tablename, {
-        columns: [idColumn, groceryIdColumn, storeIdColumn, amountColumn, pickedUpColumn, unitColumn, multiplierColumn],
+        columns: [idColumn, groceryIdColumn, storeIdColumn, amountColumn, pickedUpColumn, unitColumn, noteColumn],
         filters: { [listIdColumn]: listId },
     })
     return items.map((row) => convertRowToListItem(row))
@@ -110,7 +110,7 @@ const getListItemById = async (id) => {
             amountColumn,
             pickedUpColumn,
             unitColumn,
-            multiplierColumn,
+            noteColumn,
         ],
         filters: { [idColumn]: id },
     })
@@ -128,7 +128,7 @@ const updateListItem = async (item) => {
     if (item.amount) values[amountColumn] = item.amount
     if (item.pickedUp !== null) values[pickedUpColumn] = item.pickedUp // todo: beware of setting to false
     if (item.unit) values[unitColumn] = item.unit
-    if (item.multiplier) values[multiplierColumn] = item.multiplier
+    if (item.note) values[noteColumn] = item.note
 
     const wasUpdated = await db.updateSingle(tablename, {
         values,
