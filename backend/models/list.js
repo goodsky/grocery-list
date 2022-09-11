@@ -6,7 +6,7 @@ const idColumn = 'id'
 const nameColumn = 'name'
 const ownerColumn = 'owner'
 const createdDateColumn = 'created'
-const shoppingDate = 'date'
+const shoppingDateColumn = 'date'
 
 let hasInit = false
 const init = async () => {
@@ -16,7 +16,7 @@ const init = async () => {
             [nameColumn]: 'TEXT',
             [ownerColumn]: `TEXT REFERENCES ${userDb.tablename}(${userDb.primaryKey})`,
             [createdDateColumn]: 'TIMESTAMP WITH TIME ZONE',
-            [shoppingDate]: 'DATE',
+            [shoppingDateColumn]: 'DATE',
         })
 
         hasInit = true
@@ -33,6 +33,7 @@ const convertRowToList = (row) => {
         name: row[nameColumn],
         owner: row[ownerColumn],
         createdDate: row[createdDateColumn],
+        shoppingDate: row[shoppingDateColumn],
     }
 }
 
@@ -44,8 +45,9 @@ const addList = async (list) => {
             [nameColumn]: list.name,
             [ownerColumn]: list.owner,
             [createdDateColumn]: list.createdDate,
+            [shoppingDateColumn]: list.shoppingDate,
         },
-        returning: [idColumn, nameColumn, ownerColumn, createdDateColumn],
+        returning: [idColumn, nameColumn, ownerColumn, createdDateColumn, shoppingDateColumn],
     })
 
     return convertRowToList(newList)
@@ -69,7 +71,7 @@ const getLists = async () => {
     await init()
 
     const lists = await db.select(tablename, {
-        columns: [idColumn, nameColumn, ownerColumn, createdDateColumn],
+        columns: [idColumn, nameColumn, ownerColumn, createdDateColumn, shoppingDateColumn],
     })
     return lists.map((row) => convertRowToList(row))
 }
@@ -78,7 +80,7 @@ const getListsByUsername = async (username) => {
     await init()
 
     const lists = await db.select(tablename, {
-        columns: [idColumn, nameColumn, ownerColumn, createdDateColumn],
+        columns: [idColumn, nameColumn, ownerColumn, createdDateColumn, shoppingDateColumn],
         filters: { [ownerColumn]: username },
     })
     return lists.map((row) => convertRowToList(row))
@@ -96,7 +98,7 @@ const getListById = async (id, username) => {
     }
 
     const list = await db.selectSingle(tablename, {
-        columns: [idColumn, nameColumn, ownerColumn, createdDateColumn],
+        columns: [idColumn, nameColumn, ownerColumn, createdDateColumn, shoppingDateColumn],
         filters,
     })
 
@@ -114,6 +116,7 @@ const updateList = async (list, username) => {
     if (list.name) values[nameColumn] = list.name
     if (list.owner) values[ownerColumn] = list.owner
     if (list.createdDate) values[createdDateColumn] = list.createdDate
+    if (list.shoppingDate) values[shoppingDateColumn] = list.shoppingDate
 
     const filters = {
         [idColumn]: list.id,

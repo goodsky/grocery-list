@@ -14,7 +14,7 @@ const userIsOwner = async (listId, username) => {
 
 // POST /api/lists
 router.post('/', middleware.tokenRequired, async (request, response) => {
-    const { name } = request.body
+    const { name, shoppingDate } = request.body
     const { username } = request.claims
 
     if (!name) {
@@ -26,6 +26,7 @@ router.post('/', middleware.tokenRequired, async (request, response) => {
         name,
         owner: username,
         createdDate: new Date(),
+        shoppingDate,
     }
 
     const addedList = await listDb.addList(list)
@@ -86,10 +87,11 @@ router.put('/:id', middleware.tokenRequired, async (request, response) => {
         return
     }
 
-    const { name } = request.body
+    const { name, shoppingDate } = request.body
     const updatedList = {
         id: idInt,
         name,
+        shoppingDate,
     }
 
     const wasUpdated = await listDb.updateList(updatedList, isAdmin ? null : username)
