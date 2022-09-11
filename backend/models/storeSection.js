@@ -8,11 +8,14 @@ const nameColumn = 'name'
 let hasInit = false
 const init = async () => {
     if (!hasInit) {
-        await db.createTable(tablename, {
-            [aisleIdColumn]: `INTEGER REFERENCES ${aisleDb.tablename}(${aisleDb.primaryKey})`,
-            [nameColumn]: 'TEXT',
-            UNIQUE: `(${aisleIdColumn}, ${nameColumn})`,
-        })
+        await db.createTable(
+            tablename,
+            {
+                [aisleIdColumn]: `INTEGER REFERENCES ${aisleDb.tablename}(${aisleDb.primaryKey})`,
+                [nameColumn]: 'TEXT',
+            },
+            { UNIQUE: `(${aisleIdColumn}, ${nameColumn})` }
+        )
 
         hasInit = true
     }

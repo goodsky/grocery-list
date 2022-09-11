@@ -1,13 +1,24 @@
 const pgWrapper = require('./pgWrapper')
 
-const createTable = async (tablename, tableDefinition) => {
+const createTable = async (tablename, tableDefinition, tableConstraints) => {
     const columnString = Object.entries(tableDefinition)
         .map(([name, type]) => `${name} ${type}`)
         .reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)
 
-    const createTableString = `CREATE TABLE IF NOT EXISTS ${tablename} (${columnString})`
+    const constraintString = tableConstraints
+        ? Object.entries(tableConstraints)
+              .map(([name, type]) => `${name} ${type}`)
+              .reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)
+        : null
+
+    // The table definition is columns + constraints
+    const columnAndConstraintString = constraintString ? `${columnString}, ${constraintString}` : columnString
+
+    const createTableString = `CREATE TABLE IF NOT EXISTS ${tablename} (${columnAndConstraintString})`
     await pgWrapper.query(createTableString)
 
+    // The table update is just columns
+    // NB: I don't support adding constraints without recreating the table
     const addColumnString = Object.entries(tableDefinition)
         .map(([name, type]) => `ADD COLUMN IF NOT EXISTS ${name} ${type}`)
         .reduce((prev, nextColumn) => `${prev}, ${nextColumn}`)

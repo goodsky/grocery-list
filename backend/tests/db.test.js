@@ -42,6 +42,32 @@ describe('PostgreSQL db wrapper', () => {
         )
     })
 
+    it('should create table with constraints', async () => {
+        const queryStub = sinon.stub(pgWrapper, 'query').resolves(null)
+        await db.createTable(
+            'testtable',
+            {
+                col1: 'INTEGER',
+                col2: 'INTEGER',
+            },
+            { UNIQUE: '(col1, col2)' }
+        )
+
+        // Expect create then later with columns
+        assert(queryStub.calledTwice)
+        const queryText = queryStub.getCall(0).args[0]
+        assert.equal(
+            queryText,
+            'CREATE TABLE IF NOT EXISTS testtable (col1 INTEGER, col2 INTEGER, UNIQUE (col1, col2))'
+        )
+
+        const alterText = queryStub.getCall(1).args[0]
+        assert.equal(
+            alterText,
+            'ALTER TABLE testtable ADD COLUMN IF NOT EXISTS col1 INTEGER, ADD COLUMN IF NOT EXISTS col2 INTEGER'
+        )
+    })
+
     it('should insert into table', async () => {
         const queryStub = sinon.stub(pgWrapper, 'query').resolves({ rows: ['foo'] })
         await db.insert('testtable', {
