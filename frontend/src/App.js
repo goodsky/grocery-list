@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { Container, Paper, Typography } from '@mui/material'
-import Home from './pages/Home'
 import Login from './pages/Login'
 import ManageGroceries from './pages/ManageGroceries'
 import ManageLists from './pages/ManageLists'
@@ -64,7 +63,7 @@ function App() {
             <NavBar userToken={token} logOut={logOut} />
             <Routes>
                 <Route path="*" element={<NotFound />} />
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<ManageLists />} />
                 <Route path="/groceries" element={<ManageGroceries />} />
                 <Route path="/groceries/add" element={<ModifyGrocery isEdit={false} />} />
                 <Route path="/groceries/edit/:id" element={<ModifyGrocery isEdit={true} />} />

@@ -4,8 +4,7 @@ import { AppBar, Toolbar, IconButton, Box, Button, Menu, MenuItem, Typography } 
 import MenuIcon from '@mui/icons-material/Menu'
 
 const navButtons = [
-    { label: 'home', url: '/' },
-    { label: 'lists', url: '/lists' },
+    { label: 'lists', url: '/' },
     { label: 'groceries', url: '/groceries' },
     { label: 'stores', url: '/stores' },
 ]
