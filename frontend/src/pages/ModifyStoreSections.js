@@ -22,7 +22,7 @@ const ModifyStoreSections = ({ aisle, dispatch, isEdit }) => {
 
     const popup = useRef()
 
-    const title = isEdit ? 'Modify an Aisle' : 'Add an Aisle'
+    const title = isEdit ? 'Modify Aisle' : 'Add an Aisle'
     const buttonVerb = isEdit ? 'Edit' : 'Add'
 
     const handleAddSection = () => {

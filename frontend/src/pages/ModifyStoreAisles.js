@@ -21,7 +21,7 @@ import DraggableList from '../components/DraggableList'
 const ModifyStoreAisles = ({ dispatch, isEdit, store, submitChanges }) => {
     const popup = useRef()
 
-    const title = isEdit ? 'Modify a Store' : 'Add a Store'
+    const title = isEdit ? 'Modify Store' : 'Add a Store'
     const buttonVerb = isEdit ? 'Edit' : 'Add'
 
     const handleAisleReorder = (result) => {
