@@ -27,9 +27,9 @@ const query = async (text, params) => {
 
     try {
         if (!isConnected) {
+            isConnected = true // race condition here can cause double connect which borks the entire service!
             logger.info('Connecting to PostgreSQL')
             await client.connect()
-            isConnected = true
         }
 
         if (queryLogging) {
