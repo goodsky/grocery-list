@@ -47,6 +47,11 @@ const ModifyStoreSections = ({ aisle, dispatch, isEdit }) => {
     const handleSubmit = (event) => {
         event.preventDefault()
 
+        if (sections.length === 0) {
+            popup.current.notify('Aisle must have at least 1 section', 'warning')
+            return
+        }
+
         if (isEdit) {
             const updatedAisle = { ...aisle, name, sections }
             dispatch({ type: 'updateAisle', aisle: updatedAisle })
@@ -72,7 +77,7 @@ const ModifyStoreSections = ({ aisle, dispatch, isEdit }) => {
                 />
                 <Paper sx={{ p: 1 }}>
                     <Stack>
-                        <Typography>{sections.length} Aisles</Typography>
+                        <Typography>{sections.length} Section Tags</Typography>
                         <Stack direction="row">
                             <TextField
                                 label="Section"
@@ -93,7 +98,7 @@ const ModifyStoreSections = ({ aisle, dispatch, isEdit }) => {
                                 variant="contained"
                                 onClick={() => handleAddSection()}
                             >
-                                Add Aisle
+                                Add Section
                             </Button>
                         </Stack>
                         <List sx={{ maxHeight: 210, overflow: 'auto' }}>

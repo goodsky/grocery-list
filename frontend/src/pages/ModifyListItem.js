@@ -1,56 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Autocomplete, Button, Stack, TextField, Typography } from '@mui/material'
 
-import groceryService from '../services/groceries'
-import storeService from '../services/stores'
-
-const ModifyListItem = ({ dispatch, isEdit, item }) => {
+const ModifyListItem = ({ dispatch, isEdit, item, groceries, stores }) => {
     const [groceryName, setGroceryName] = useState('')
-    const [groceries, setGroceries] = useState([])
     const [selectedGrocery, setSelectedGrocery] = useState(null)
 
-    const [storeName, setStoreName] = useState('')
-    const [stores, setStores] = useState([])
     const [selectedStore, setSelectedStore] = useState(null)
 
     const [amount, setAmount] = useState('')
+    const [units, setUnits] = useState('')
+    const [note, setNote] = useState('')
 
     const title = isEdit ? 'Modify List Item' : 'Add an Item'
     const buttonVerb = isEdit ? 'Edit' : 'Add'
 
     useEffect(() => {
-        const fetchGroceries = async () => {
-            const result = await groceryService.getGroceries()
-            if (result.success) {
-                const sortedGroceries = result.groceries
-                    .map((grocery) => (grocery.section ? grocery : { ...grocery, section: 'Unknown' }))
-                    .sort((a, b) => ('' + a.section).localeCompare(b.section))
-
-                console.log('loaded groceries', sortedGroceries)
-                setGroceries(sortedGroceries)
-            } else {
-                console.error('Failed to load groceries')
-            }
-        }
-
-        const fetchStores = async () => {
-            const result = await storeService.getStores()
-            if (result.success) {
-                const sortedStores = result.stores.sort((a, b) => ('' + a.name).localeCompare(b.name))
-
-                console.log('loaded stores', sortedStores)
-                setStores(sortedStores)
-            } else {
-                console.error('Failed to load stores')
-            }
-        }
-
-        fetchGroceries()
-        fetchStores()
+        // TODO: set selected grocery/store/etc based off of a passed in item if we are editing
     }, [])
 
     const handleSubmit = (event) => {
         event.preventDefault()
+
+        // TODO: Add the item to the list
     }
 
     const preventSubmit = (event) => {
@@ -71,6 +42,7 @@ const ModifyListItem = ({ dispatch, isEdit, item }) => {
     const handleGroceryChange = (event, newValue) => {
         console.log('Selected Grocery', newValue)
         setSelectedGrocery(newValue)
+        setUnits(newValue.units)
     }
 
     const handleGroceryInputChange = (event, newValue) => {
@@ -84,8 +56,7 @@ const ModifyListItem = ({ dispatch, isEdit, item }) => {
     }
 
     const handleStoreInputChange = (event, newValue) => {
-        setStoreName(newValue)
-        setSelectedStore(null)
+        /* nop */
     }
 
     return (
@@ -107,20 +78,23 @@ const ModifyListItem = ({ dispatch, isEdit, item }) => {
                 autoHighlight
                 options={stores}
                 getOptionLabel={getOptionName}
-                value={storeName}
                 onChange={handleStoreChange}
                 onInputChange={handleStoreInputChange}
-                isOptionEqualToValue={(option, value) => option.name === value}
+                isOptionEqualToValue={(option, value) => option.name === value.name}
                 onKeyPress={preventSubmit}
                 renderOption={(props, option) => (
-                    <Stack component="li" {...props} sx={{ alignItems: 'start' }}>
-                        <Typography variant="body2">{option.name}</Typography>
-                        <Typography variant="caption">{option.address}</Typography>
+                    <Stack component="li" {...props} sx={{ display: 'flex' }}>
+                        <Typography variant="body2" sx={{ alignSelf: 'start' }}>
+                            {option.name}
+                        </Typography>
+                        <Typography variant="caption" sx={{ alignSelf: 'start' }}>
+                            {option.address}
+                        </Typography>
                     </Stack>
                 )}
                 renderInput={(params) => <TextField {...params} required label="Store" variant="standard" />}
             />
-            <Stack>
+            <Stack direction="row">
                 <TextField
                     required
                     label="Amount"
@@ -128,8 +102,24 @@ const ModifyListItem = ({ dispatch, isEdit, item }) => {
                     value={amount}
                     variant="standard"
                     onChange={(event) => setAmount(event.target.value)}
+                    sx={{ flexGrow: 1 }}
+                />
+                <TextField
+                    required
+                    label="Units"
+                    value={units}
+                    variant="standard"
+                    onChange={(event) => setUnits(event.target.value)}
                 />
             </Stack>
+            <TextField
+                label="Note"
+                multiline
+                rows={3}
+                value={note}
+                variant="standard"
+                onChange={(event) => setNote(event.target.value)}
+            />
             <Button type="submit" color="primary" variant="contained">
                 {buttonVerb}
             </Button>

@@ -58,7 +58,9 @@ const ManageLists = () => {
     }
 
     const content = isLoading ? (
-        <CircularProgress />
+        <Stack alignItems="center">
+            <CircularProgress sx={{ m: 3 }} />
+        </Stack>
     ) : (
         <List>
             {lists.map((list) => (
