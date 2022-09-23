@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Autocomplete, Button, Stack, TextField, Typography } from '@mui/material'
 
-const ModifyListItem = ({ dispatch, isEdit, item, groceries, stores }) => {
+import listItemService from '../services/listItems'
+
+const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
     const [groceryName, setGroceryName] = useState('')
     const [selectedGrocery, setSelectedGrocery] = useState(null)
-
-    const [selectedStore, setSelectedStore] = useState(null)
 
     const [amount, setAmount] = useState('')
     const [units, setUnits] = useState('')
@@ -18,10 +18,38 @@ const ModifyListItem = ({ dispatch, isEdit, item, groceries, stores }) => {
         // TODO: set selected grocery/store/etc based off of a passed in item if we are editing
     }, [])
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault()
+        const currentItem = {
+            groceryId: selectedGrocery.id,
+            storeId: store.id,
+            amount,
+            units,
+            note,
+        }
 
-        // TODO: Add the item to the list
+        console.log(currentItem)
+
+        if (isEdit) {
+            const updatedItem = { ...currentItem, id: item.id }
+            const result = await listItemService.updateItem(list.id, updatedItem)
+
+            console.log('Updated item', result)
+            if (result.success) {
+                dispatch({ type: 'updateItem', updatedItem })
+                return
+            }
+        } else {
+            const result = await listItemService.addItem(list.id, currentItem)
+
+            console.log('Added item', result)
+            if (result.success) {
+                dispatch({ type: 'addItem', item: result.item })
+                return
+            }
+        }
+
+        dispatch({ type: 'setMode', mode: 'list' })
     }
 
     const preventSubmit = (event) => {
@@ -50,15 +78,6 @@ const ModifyListItem = ({ dispatch, isEdit, item, groceries, stores }) => {
         setSelectedGrocery(null)
     }
 
-    const handleStoreChange = (event, newValue) => {
-        console.log('Selected Store', newValue)
-        setSelectedStore(newValue)
-    }
-
-    const handleStoreInputChange = (event, newValue) => {
-        /* nop */
-    }
-
     return (
         <Stack component="form" spacing={2} onSubmit={handleSubmit}>
             <Typography variant="h2">{title}</Typography>
@@ -73,26 +92,6 @@ const ModifyListItem = ({ dispatch, isEdit, item, groceries, stores }) => {
                 onInputChange={handleGroceryInputChange}
                 onKeyPress={preventSubmit}
                 renderInput={(params) => <TextField {...params} required label="Grocery" variant="standard" />}
-            />
-            <Autocomplete
-                autoHighlight
-                options={stores}
-                getOptionLabel={getOptionName}
-                onChange={handleStoreChange}
-                onInputChange={handleStoreInputChange}
-                isOptionEqualToValue={(option, value) => option.name === value.name}
-                onKeyPress={preventSubmit}
-                renderOption={(props, option) => (
-                    <Stack component="li" {...props} sx={{ display: 'flex' }}>
-                        <Typography variant="body2" sx={{ alignSelf: 'start' }}>
-                            {option.name}
-                        </Typography>
-                        <Typography variant="caption" sx={{ alignSelf: 'start' }}>
-                            {option.address}
-                        </Typography>
-                    </Stack>
-                )}
-                renderInput={(params) => <TextField {...params} required label="Store" variant="standard" />}
             />
             <Stack direction="row">
                 <TextField
@@ -123,7 +122,7 @@ const ModifyListItem = ({ dispatch, isEdit, item, groceries, stores }) => {
             <Button type="submit" color="primary" variant="contained">
                 {buttonVerb}
             </Button>
-            <Button onClick={() => dispatch({ type: 'clearModifyItem' })} color="secondary" variant="contained">
+            <Button onClick={() => dispatch({ type: 'setMode', mode: 'list' })} color="secondary" variant="contained">
                 Cancel
             </Button>
         </Stack>

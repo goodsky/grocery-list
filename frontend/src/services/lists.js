@@ -68,7 +68,7 @@ const updateList = async ({ id, name, shoppingDate }) => {
         const token = tokenService.getToken()
         const response = await axios.put(
             `${baseUrl}/${id}`,
-            { name, shoppingDate },
+            { id, name, shoppingDate },
             { headers: { Authorization: `Bearer ${token}` } }
         )
         return {
