@@ -15,6 +15,7 @@ import {
     Typography,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
@@ -23,8 +24,8 @@ import TabPanelList from '../components/TabPanelList'
 import listService from '../services/lists'
 
 const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
-    const [dialogOpen, setDialogOpen] = useState(false)
-    const [dialogStore, setDialogStore] = useState(null)
+    const [storeDialogOpen, setStoreDialogOpen] = useState(false)
+    const [storeDialogSelection, setStoreDialogSelection] = useState(null)
 
     const title = isEdit ? 'Modify List' : 'Add a List'
 
@@ -63,17 +64,22 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                     onAccept={(event) => updateNameOrDate()}
                 />
                 <Stack direction="row">
-                    <Button sx={{ m: 1 }} color="primary" variant="contained" onClick={() => setDialogOpen(true)}>
-                        Add Store
-                    </Button>
                     <Button
                         sx={{ m: 1 }}
-                        color="secondary"
+                        color="primary"
                         variant="contained"
                         disabled={!list.stores || list.stores.length === 0}
                         onClick={() => dispatch({ type: 'setMode', mode: 'item' })}
                     >
                         Add Item
+                    </Button>
+                    <Button
+                        sx={{ m: 1 }}
+                        color="secondary"
+                        variant="contained"
+                        onClick={() => setStoreDialogOpen(true)}
+                    >
+                        Add Store
                     </Button>
                 </Stack>
                 <Paper>
@@ -83,29 +89,38 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                         tabs={list.stores}
                         options={list.items}
                         optionInTab={(option, tab) => option.storeId === tab.id}
-                        optionToElement={(item) => (
-                            <ListItem key={item.id}>
-                                <ListItemText primary={item.groceryName} />
-                                <ListItemSecondaryAction>
-                                    <IconButton onClick={() => dispatch({ type: 'deleteItem', id: item.id })}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                        )}
+                        optionToElement={(item) => {
+                            // console.log('Option to element', item)
+                            // TODO: Support edit and delete on list items
+                            return (
+                                <ListItem key={item.id}>
+                                    <ListItemText
+                                        primary={`${item.groceryname} \tx ${item.amount} ${item.unit ? item.unit : ''}`}
+                                    />
+                                    <ListItemSecondaryAction>
+                                        <IconButton onClick={() => dispatch({ type: 'editItem', id: item.id })}>
+                                            <EditIcon />
+                                        </IconButton>
+                                        <IconButton onClick={() => dispatch({ type: 'deleteItem', id: item.id })}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            )
+                        }}
                     />
                 </Paper>
                 <Button component={Link} to="/" color="secondary" variant="contained">
                     Done
                 </Button>
             </Stack>
-            <Dialog maxWidth="xs" fullWidth onClose={() => setDialogOpen(false)} open={dialogOpen}>
+            <Dialog maxWidth="xs" fullWidth onClose={() => setStoreDialogOpen(false)} open={storeDialogOpen}>
                 <DialogTitle>Add a store</DialogTitle>
                 <Stack spacing={2} sx={{ m: 2 }}>
                     <Autocomplete
                         autoHighlight
                         options={stores}
-                        onChange={(event, newValue) => setDialogStore(newValue)}
+                        onChange={(event, newValue) => setStoreDialogSelection(newValue)}
                         getOptionLabel={(option) => option.name}
                         isOptionEqualToValue={(option, value) => option.name === value.name}
                         renderOption={(props, option) => (
@@ -122,10 +137,10 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                     />
                     <Button
                         onClick={() => {
-                            if (dialogStore) {
-                                dispatch({ type: 'addStore', store: dialogStore })
-                                setDialogStore(null)
-                                setDialogOpen(false)
+                            if (storeDialogSelection) {
+                                dispatch({ type: 'addStore', store: storeDialogSelection })
+                                setStoreDialogSelection(null)
+                                setStoreDialogOpen(false)
                             }
                         }}
                         color="primary"
@@ -133,7 +148,7 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                     >
                         Add
                     </Button>
-                    <Button onClick={() => setDialogOpen(false)} color="secondary" variant="contained">
+                    <Button onClick={() => setStoreDialogOpen(false)} color="secondary" variant="contained">
                         Cancel
                     </Button>
                 </Stack>

@@ -8,7 +8,7 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
     const [selectedGrocery, setSelectedGrocery] = useState(null)
 
     const [amount, setAmount] = useState('')
-    const [units, setUnits] = useState('')
+    const [unit, setUnit] = useState('')
     const [note, setNote] = useState('')
 
     const title = isEdit ? 'Modify List Item' : 'Add an Item'
@@ -24,7 +24,7 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
             groceryId: selectedGrocery.id,
             storeId: store.id,
             amount,
-            units,
+            unit,
             note,
         }
 
@@ -32,6 +32,7 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
 
         if (isEdit) {
             const updatedItem = { ...currentItem, id: item.id }
+            // TODO: this should return back the modified item in its populated form
             const result = await listItemService.updateItem(list.id, updatedItem)
 
             console.log('Updated item', result)
@@ -70,7 +71,7 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
     const handleGroceryChange = (event, newValue) => {
         console.log('Selected Grocery', newValue)
         setSelectedGrocery(newValue)
-        setUnits(newValue.units)
+        setUnit(newValue.units)
     }
 
     const handleGroceryInputChange = (event, newValue) => {
@@ -104,11 +105,10 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
                     sx={{ flexGrow: 1 }}
                 />
                 <TextField
-                    required
                     label="Units"
-                    value={units}
+                    value={unit}
                     variant="standard"
-                    onChange={(event) => setUnits(event.target.value)}
+                    onChange={(event) => setUnit(event.target.value)}
                 />
             </Stack>
             <TextField

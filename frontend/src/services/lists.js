@@ -49,10 +49,12 @@ const getLists = async (all = false) => {
     }
 }
 
-const getListById = async (id) => {
+const getListById = async (id, all = false) => {
     try {
         const token = tokenService.getToken()
-        const response = await axios.get(`${baseUrl}/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+        const response = await axios.get(`${baseUrl}/${id}${all ? '?all=true' : ''}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
         return {
             success: true,
             list: response.data,

@@ -49,10 +49,11 @@ router.get('/', middleware.tokenRequired, async (request, response) => {
     response.status(200).json(lists)
 })
 
-// GET /api/lists/:id
+// GET /api/lists/:id(?all=true)
 router.get('/:id', middleware.tokenRequired, async (request, response) => {
     const { id } = request.params
     const { username, isAdmin } = request.claims
+    const getAll = request.query.all === 'true'
 
     const idInt = parseInt(id, 10)
     if (!idInt) {
@@ -65,6 +66,16 @@ router.get('/:id', middleware.tokenRequired, async (request, response) => {
     if (!list) {
         response.sendStatus(404)
         return
+    }
+
+    if (getAll) {
+        const itemsPromise = listItemDb.getListItemsByListId(idInt)
+        const storesPromise = listItemDb.getStoresByListId(idInt)
+
+        const [items, stores] = await Promise.all([itemsPromise, storesPromise])
+
+        list.items = items
+        list.stores = stores
     }
 
     response.status(200).json(list)

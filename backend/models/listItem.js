@@ -37,6 +37,7 @@ const convertRowToListItem = (row) => {
     }
 
     return {
+        ...row,
         id: row[idColumn],
         listId: row[listIdColumn],
         groceryId: row[groceryIdColumn],
@@ -51,29 +52,62 @@ const convertRowToListItem = (row) => {
 const addListItem = async (item) => {
     await init()
 
-    const newItem = await db.insert(tablename, {
-        values: {
-            [listIdColumn]: item.listId,
-            [groceryIdColumn]: item.groceryId,
-            [storeIdColumn]: item.storeId,
-            [amountColumn]: item.amount,
-            [pickedUpColumn]: item.pickedUp,
-            [unitColumn]: item.unit,
-            [noteColumn]: item.note,
-        },
-        returning: [
-            idColumn,
-            listIdColumn,
-            groceryIdColumn,
-            storeIdColumn,
-            amountColumn,
-            pickedUpColumn,
-            unitColumn,
-            noteColumn,
-        ],
-    })
+    // const newItem = await db.insert(tablename, {
+    //     values: {
+    //         [listIdColumn]: item.listId,
+    //         [groceryIdColumn]: item.groceryId,
+    //         [storeIdColumn]: item.storeId,
+    //         [amountColumn]: item.amount,
+    //         [pickedUpColumn]: item.pickedUp,
+    //         [unitColumn]: item.unit,
+    //         [noteColumn]: item.note,
+    //     },
+    //     returning: [
+    //         idColumn,
+    //         listIdColumn,
+    //         groceryIdColumn,
+    //         storeIdColumn,
+    //         amountColumn,
+    //         pickedUpColumn,
+    //         unitColumn,
+    //         noteColumn,
+    //     ],
+    // })
 
-    return convertRowToListItem(newItem)
+    const addedItemName = 'item'
+    const result = await db.query(
+        `WITH ${addedItemName} as (
+                INSERT INTO ${tablename}
+                (
+                    ${listIdColumn},
+                    ${groceryIdColumn},
+                    ${storeIdColumn},
+                    ${amountColumn},
+                    ${pickedUpColumn},
+                    ${unitColumn},
+                    ${noteColumn}
+                )
+                VALUES($1, $2, $3, $4, $5, $6, $7)
+                RETURNING *
+            )
+        SELECT 
+            ${addedItemName}.${idColumn} AS id,
+            ${listIdColumn},
+            ${groceryIdColumn},
+            ${groceryDb.tablename}.name AS groceryname,
+            ${groceryDb.tablename}.section AS grocerysection,
+            ${storeIdColumn},
+            ${amountColumn},
+            ${pickedUpColumn},
+            ${unitColumn},
+            ${noteColumn}
+        FROM ${addedItemName}
+            LEFT OUTER JOIN ${groceryDb.tablename} ON ${addedItemName}.${groceryIdColumn} = ${groceryDb.tablename}.${groceryDb.primaryKey}
+        `,
+        [item.listId, item.groceryId, item.storeId, item.amount, item.pickedUp, item.unit, item.note]
+    )
+
+    return convertRowToListItem(result.rows[0])
 }
 
 const deleteListItem = async (id) => {
@@ -91,11 +125,47 @@ const deleteListItemsByListId = async (listId) => {
 const getListItemsByListId = async (listId) => {
     await init()
 
-    const items = await db.select(tablename, {
-        columns: [idColumn, groceryIdColumn, storeIdColumn, amountColumn, pickedUpColumn, unitColumn, noteColumn],
-        filters: { [listIdColumn]: listId },
-    })
-    return items.map((row) => convertRowToListItem(row))
+    // const items = await db.select(tablename, {
+    //     columns: [idColumn, groceryIdColumn, storeIdColumn, amountColumn, pickedUpColumn, unitColumn, noteColumn],
+    //     filters: { [listIdColumn]: listId },
+    // })
+    // return items.map((row) => convertRowToListItem(row))
+
+    const result = await db.query(
+        `SELECT
+            ${tablename}.${idColumn} AS id,
+            ${groceryIdColumn},
+            ${groceryDb.tablename}.name AS groceryname,
+            ${groceryDb.tablename}.section AS grocerysection,
+            ${storeIdColumn},
+            ${amountColumn},
+            ${pickedUpColumn},
+            ${unitColumn},
+            ${noteColumn}
+        FROM ${tablename}
+            LEFT OUTER JOIN ${groceryDb.tablename} ON ${tablename}.${groceryIdColumn} = ${groceryDb.tablename}.${groceryDb.primaryKey}
+        WHERE ${listIdColumn} = $1`,
+        [listId]
+    )
+
+    return result.rows.map((row) => convertRowToListItem(row))
+}
+
+const getStoresByListId = async (listId) => {
+    await init()
+
+    const result = await db.query(
+        `SELECT DISTINCT
+            ${storeIdColumn} AS id,
+            ${storeDb.tablename}.name AS name,
+            ${storeDb.tablename}.address AS address
+        FROM ${tablename}
+            LEFT OUTER JOIN ${storeDb.tablename} ON ${tablename}.${storeIdColumn} = ${storeDb.tablename}.${storeDb.primaryKey}
+        WHERE ${listIdColumn} = $1`,
+        [listId]
+    )
+
+    return result.rows
 }
 
 const getListItemById = async (id) => {
@@ -145,6 +215,7 @@ module.exports = {
     deleteListItem,
     deleteListItemsByListId,
     getListItemsByListId,
+    getStoresByListId,
     getListItemById,
     updateListItem,
 }

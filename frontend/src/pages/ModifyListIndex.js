@@ -9,13 +9,12 @@ import PopUp from '../components/PopUp'
 
 import groceryService from '../services/groceries'
 import listService from '../services/lists'
-import listItemService from '../services/listItems'
 import storeService from '../services/stores'
 
 const initialState = {
     list: {
         name: 'Shopping List',
-        shoppingDate: dayjs(),
+        shoppingDate: dayjs(), // TODO: don't flash the default values when editing an existing list
         items: [],
         stores: [],
         isChanged: false, // client only field
@@ -52,6 +51,7 @@ const reducer = (state, action) => {
             return { ...state, list: { ...state.list, isChanged: false } }
 
         case 'addStore':
+            // TODO: check for duplicate stores before adding
             const updatedStores = state.list.stores.concat(action.store)
             return { ...state, list: { ...state.list, stores: updatedStores }, storeIndex: updatedStores.length - 1 }
 
@@ -101,21 +101,19 @@ const ModifyListIndex = ({ isEdit }) => {
     useEffect(() => {
         const fetchOrCreateList = async () => {
             if (isEdit) {
-                const listPromise = listService.getListById(id)
-                const itemPromise = listItemService.getItemsByListId(id)
-                const [listResult, itemResult] = await Promise.all([listPromise, itemPromise])
-                if (listResult.success && itemResult.success) {
+                const result = await listService.getListById(id, true)
+                if (result.success) {
                     const list = {
-                        id: listResult.list.id,
-                        name: listResult.list.name,
-                        shoppingDate: dayjs(listResult.list.shoppingDate),
-                        items: itemResult.items,
-                        stores: [], // TODO: The backend needs to be updated to support my new store format
+                        id: result.list.id,
+                        name: result.list.name,
+                        shoppingDate: dayjs(result.list.shoppingDate),
+                        items: result.list.items,
+                        stores: result.list.stores,
                     }
                     console.log('Fetched list', list)
                     dispatch({ type: 'setList', list })
                 } else {
-                    console.error('Failed to fetch list', listResult, itemResult)
+                    console.error('Failed to fetch list', result)
                 }
             } else {
                 const result = await listService.addList({

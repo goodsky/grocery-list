@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Box, Tab, Tabs, Typography } from '@mui/material'
+import { Box, List, Tab, Tabs } from '@mui/material'
 
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props
@@ -12,11 +12,7 @@ const TabPanel = (props) => {
             aria-labelledby={`simple-tab-${index}`}
             {...other}
         >
-            {value === index && (
-                <Box sx={{ p: 3 }}>
-                    <Typography>{children}</Typography>
-                </Box>
-            )}
+            {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
         </div>
     )
 }
@@ -38,7 +34,9 @@ const TabPanelList = ({ value, updateIndex, tabs, options, optionInTab, optionTo
             </Box>
             {tabs.map((tab, index) => (
                 <TabPanel key={index} value={value} index={index}>
-                    {options.filter((option) => optionInTab(option, tab)).map((option) => optionToElement(option))}
+                    <List>
+                        {options.filter((option) => optionInTab(option, tab)).map((option) => optionToElement(option))}
+                    </List>
                 </TabPanel>
             ))}
         </>
