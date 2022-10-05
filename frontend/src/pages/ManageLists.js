@@ -17,6 +17,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import dayjs from 'dayjs'
 
 import listService from '../services/lists'
 import PopUp from '../components/PopUp'
@@ -65,7 +66,9 @@ const ManageLists = () => {
         <List>
             {lists.map((list) => (
                 <ListItem key={list.id} selected={selectedId === list.id} onClick={() => setSelectedId(list.id)}>
-                    <ListItemText>{list.name}</ListItemText>
+                    <ListItemText>
+                        {dayjs(list.shoppingDate).format('YYYY/MM/DD')} - <b>{list.name}</b>
+                    </ListItemText>
                     <ListItemSecondaryAction>
                         <IconButton onClick={() => navigate(`/lists/edit/${list.id}`)}>
                             <EditIcon />

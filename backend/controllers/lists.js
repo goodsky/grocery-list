@@ -30,6 +30,8 @@ router.post('/', middleware.tokenRequired, async (request, response) => {
     }
 
     const addedList = await listDb.addList(list)
+    addedList.items = []
+    addedList.stores = []
     response.status(201).json(addedList)
 })
 

@@ -22,12 +22,15 @@ import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
 
 import TabPanelList from '../components/TabPanelList'
 import listService from '../services/lists'
+import listItemService from '../services/listItems'
 
 const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
     const [storeDialogOpen, setStoreDialogOpen] = useState(false)
     const [storeDialogSelection, setStoreDialogSelection] = useState(null)
 
     const title = isEdit ? 'Modify List' : 'Add a List'
+
+    const unusedStores = stores.filter((store) => !list.stores.some((usedStore) => usedStore.id === store.id))
 
     const updateNameOrDate = async () => {
         if (list.isChanged) {
@@ -40,6 +43,11 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
             await listService.updateList(updatedList)
             console.log('Updated list', list.name, list.shoppingDate)
         }
+    }
+
+    const deleteListItem = async (id) => {
+        dispatch({ type: 'deleteItem', id })
+        await listItemService.deleteItem(list.id, id)
     }
 
     return (
@@ -90,18 +98,18 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                         options={list.items}
                         optionInTab={(option, tab) => option.storeId === tab.id}
                         optionToElement={(item) => {
-                            // console.log('Option to element', item)
-                            // TODO: Support edit and delete on list items
                             return (
                                 <ListItem key={item.id}>
                                     <ListItemText
                                         primary={`${item.groceryname} \tx ${item.amount} ${item.unit ? item.unit : ''}`}
                                     />
                                     <ListItemSecondaryAction>
-                                        <IconButton onClick={() => dispatch({ type: 'editItem', id: item.id })}>
+                                        <IconButton
+                                            onClick={() => dispatch({ type: 'setMode', mode: 'item', itemId: item.id })}
+                                        >
                                             <EditIcon />
                                         </IconButton>
-                                        <IconButton onClick={() => dispatch({ type: 'deleteItem', id: item.id })}>
+                                        <IconButton onClick={() => deleteListItem(item.id)}>
                                             <DeleteIcon />
                                         </IconButton>
                                     </ListItemSecondaryAction>
@@ -119,10 +127,10 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                 <Stack spacing={2} sx={{ m: 2 }}>
                     <Autocomplete
                         autoHighlight
-                        options={stores}
+                        options={unusedStores}
                         onChange={(event, newValue) => setStoreDialogSelection(newValue)}
                         getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.name === value.name}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
                         renderOption={(props, option) => (
                             <Stack component="li" {...props} sx={{ display: 'flex' }}>
                                 <Typography variant="body2" sx={{ alignSelf: 'start' }}>

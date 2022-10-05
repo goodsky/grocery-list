@@ -20,7 +20,7 @@ const initialState = {
         isChanged: false, // client only field
     },
     mode: 'list',
-    itemIndex: null,
+    editItemId: null,
     storeIndex: 0,
     groceries: [],
     stores: [],
@@ -51,7 +51,6 @@ const reducer = (state, action) => {
             return { ...state, list: { ...state.list, isChanged: false } }
 
         case 'addStore':
-            // TODO: check for duplicate stores before adding
             const updatedStores = state.list.stores.concat(action.store)
             return { ...state, list: { ...state.list, stores: updatedStores }, storeIndex: updatedStores.length - 1 }
 
@@ -63,11 +62,15 @@ const reducer = (state, action) => {
             const itemsWithUpdated = state.list.items.map((item) => (item.id === action.item.id ? action.item : item))
             return { ...state, mode: 'list', list: { ...state.list, items: itemsWithUpdated } }
 
+        case 'deleteItem':
+            const itemsWithoutRemoved = state.list.items.filter((item) => item.id !== action.id)
+            return { ...state, list: { ...state.list, items: itemsWithoutRemoved } }
+
         case 'setStoreIndex':
             return { ...state, storeIndex: action.index }
 
         case 'setMode':
-            return { ...state, mode: action.mode, itemIndex: action.itemIndex }
+            return { ...state, mode: action.mode, editItemId: action.itemId }
 
         case 'setList':
             return { ...state, list: { ...action.list, isChanged: false } }
@@ -177,9 +180,10 @@ const ModifyListIndex = ({ isEdit }) => {
                 )
 
             case 'item':
-                const isEditItem = Number.isInteger(state.itemIndex)
-                const item = state.list.items[state.itemIndex]
+                const isEditItem = Number.isInteger(state.editItemId)
+                const item = isEditItem ? state.list.items.find((item) => item.id === state.editItemId) : null
 
+                console.log('item mode', state.editItemId, isEditItem, item)
                 if (isEditItem && !item) {
                     console.error('Attempting to modify unknown aisle index', state.aisleIndex)
                     dispatch({ type: 'error', message: 'Ooops! Something bad happened.' })

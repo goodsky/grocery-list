@@ -171,21 +171,48 @@ const getStoresByListId = async (listId) => {
 const getListItemById = async (id) => {
     await init()
 
-    const item = await db.selectSingle(tablename, {
-        columns: [
-            idColumn,
-            listIdColumn,
-            groceryIdColumn,
-            storeIdColumn,
-            amountColumn,
-            pickedUpColumn,
-            unitColumn,
-            noteColumn,
-        ],
-        filters: { [idColumn]: id },
-    })
+    // const item = await db.selectSingle(tablename, {
+    //     columns: [
+    //         idColumn,
+    //         listIdColumn,
+    //         groceryIdColumn,
+    //         storeIdColumn,
+    //         amountColumn,
+    //         pickedUpColumn,
+    //         unitColumn,
+    //         noteColumn,
+    //     ],
+    //     filters: { [idColumn]: id },
+    // })
 
-    return convertRowToListItem(item)
+    // return convertRowToListItem(item)
+
+    const result = await db.query(
+        `SELECT
+            ${tablename}.${idColumn} AS id,
+            ${groceryIdColumn},
+            ${groceryDb.tablename}.name AS groceryname,
+            ${groceryDb.tablename}.section AS grocerysection,
+            ${storeIdColumn},
+            ${amountColumn},
+            ${pickedUpColumn},
+            ${unitColumn},
+            ${noteColumn}
+        FROM ${tablename}
+            LEFT OUTER JOIN ${groceryDb.tablename} ON ${tablename}.${groceryIdColumn} = ${groceryDb.tablename}.${groceryDb.primaryKey}
+        WHERE ${tablename}.${idColumn} = $1`,
+        [id]
+    )
+
+    if (result.rows.length === 0) {
+        return null
+    }
+
+    if (result.rows.length === 1) {
+        return convertRowToListItem(result.rows[0])
+    }
+
+    throw new Error(`Unexpected row count after get list item. Got ${result.rows.length} rows.`)
 }
 
 const updateListItem = async (item) => {

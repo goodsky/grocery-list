@@ -15,8 +15,31 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
     const buttonVerb = isEdit ? 'Edit' : 'Add'
 
     useEffect(() => {
-        // TODO: set selected grocery/store/etc based off of a passed in item if we are editing
-    }, [])
+        const fetchExistingItem = async (listId, itemId) => {
+            const result = await listItemService.getItem(listId, itemId)
+            if (result.success) {
+                const grocery = {
+                    id: result.item.groceryid,
+                    name: result.item.groceryname,
+                    section: result.item.grocerysection,
+                }
+
+                setGroceryName(grocery.name)
+                setSelectedGrocery(grocery)
+
+                console.log('Fetched list item', grocery)
+
+                setAmount(result.item.amount)
+                setUnit(result.item.unit ?? '')
+                setNote(result.item.note ?? '')
+            } else {
+                console.error('Failed to fetch item')
+            }
+        }
+        if (isEdit) {
+            fetchExistingItem(list.id, item.id)
+        }
+    }, [isEdit, list, item])
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -37,7 +60,7 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
 
             console.log('Updated item', result)
             if (result.success) {
-                dispatch({ type: 'updateItem', updatedItem })
+                dispatch({ type: 'updateItem', item: updatedItem })
                 return
             }
         } else {
@@ -75,8 +98,13 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
     }
 
     const handleGroceryInputChange = (event, newValue) => {
+        console.log('Grocery Name', newValue)
         setGroceryName(newValue)
-        setSelectedGrocery(null)
+
+        if (selectedGrocery && selectedGrocery.name !== newValue) {
+            // clear the selection if we've changed the previous value
+            setSelectedGrocery(null)
+        }
     }
 
     return (
@@ -92,7 +120,9 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
                 onChange={handleGroceryChange}
                 onInputChange={handleGroceryInputChange}
                 onKeyPress={preventSubmit}
-                renderInput={(params) => <TextField {...params} required label="Grocery" variant="standard" />}
+                renderInput={(params) => (
+                    <TextField {...params} required autoFocus label="Grocery" variant="standard" />
+                )}
             />
             <Stack direction="row">
                 <TextField
