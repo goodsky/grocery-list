@@ -8,6 +8,7 @@ import ManageStores from './pages/ManageStores'
 import ModifyGrocery from './pages/ModifyGrocery'
 import ModifyListIndex from './pages/ModifyListIndex'
 import ModifyStore from './pages/ModifyStore'
+import Shopping from './pages/Shopping'
 import NavBar from './components/NavBar'
 import NotFound from './pages/NotFound'
 import Register from './pages/Register'
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/lists" element={<ManageLists />} />
                 <Route path="/lists/add" element={<ModifyListIndex isEdit={false} />} />
                 <Route path="/lists/edit/:id" element={<ModifyListIndex isEdit={true} />} />
+                <Route path="/lists/shop/:id" element={<Shopping isEdit={true} />} />
                 <Route path="/stores" element={<ManageStores />} />
                 <Route path="/stores/add" element={<ModifyStore isEdit={false} />} />
                 <Route path="/stores/edit/:id" element={<ModifyStore isEdit={true} />} />

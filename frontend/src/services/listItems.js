@@ -63,12 +63,12 @@ const getItem = async (listId, id) => {
     }
 }
 
-const updateItem = async (listId, { id, groceryId, storeId, amount, unit, note }) => {
+const updateItem = async (listId, { id, groceryId, storeId, amount, unit, note, pickedUp }) => {
     try {
         const token = tokenService.getToken()
         const response = await axios.put(
             `${baseUrl}/${listId}/items/${id}`,
-            { id, groceryId, storeId, amount, unit, note },
+            { id, groceryId, storeId, amount, unit, note, pickedUp },
             { headers: { Authorization: `Bearer ${token}` } }
         )
         return {

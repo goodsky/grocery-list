@@ -102,7 +102,7 @@ const ManageLists = () => {
                         sx={{ width: 200 }}
                         endIcon={<ShoppingCartIcon />}
                         component={Link}
-                        to={`/shopping/${selectedId}`}
+                        to={`/lists/shop/${selectedId}`}
                         disabled={!selectedId}
                     >
                         Go Shopping

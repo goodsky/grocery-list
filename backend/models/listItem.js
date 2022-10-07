@@ -36,17 +36,25 @@ const convertRowToListItem = (row) => {
         return null
     }
 
-    return {
+    const listItem = {
         ...row,
         id: row[idColumn],
         listId: row[listIdColumn],
         groceryId: row[groceryIdColumn],
         storeId: row[storeIdColumn],
         amount: row[amountColumn],
-        pickedUp: row[pickedUpColumn],
+        pickedUp: !!row[pickedUpColumn], // I don't know why this is needed to serialize this object correctly...
         unit: row[unitColumn],
         note: row[noteColumn],
     }
+
+    // sigh... some of these have different casing. this is a lazy fix for now. maybe for forever.
+    delete listItem[listIdColumn]
+    delete listItem[groceryIdColumn]
+    delete listItem[storeIdColumn]
+    delete listItem[pickedUpColumn]
+
+    return listItem
 }
 
 const addListItem = async (item) => {
