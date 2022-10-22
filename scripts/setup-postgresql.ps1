@@ -1,5 +1,11 @@
-# This script will configure the localhost PostgreSQL db for local development
-# It assumes an instance is running on localhost with default port and a super user named 'postgres'
+<#
+ .SYNOPSIS 
+    Configure the localhost PostgreSQL db for local development.
+
+ .DESCRIPTION
+    This script will set up the local database and output the development connection string (which should be copied into the .env file)
+    It assumes an instance is running on localhost with default port and a super user named 'postgres'
+ #>
 
 if (!(Get-Command psql -errorAction SilentlyContinue)) {
     Write-Error "PostgreSQL is not installed or psql.exe is not in PATH."
