@@ -4,8 +4,11 @@
         "localhost": {
             "host": "http://localhost:8080"
         },
-        "service": {
+        "heroku": {
             "host": "https://groceries.skylers.app"
+        },
+        "dokku": {
+            "host": "http://grocery-list.dokku-dev.skylers.app"
         }
     }
 }
