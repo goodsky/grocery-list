@@ -86,7 +86,8 @@ const ShoppingPage = () => {
 
         let aislesAndItems = [unknownAisle]
 
-        for (const item of items) {
+        const itemsInStore = items.filter((item) => item.storeId === selectedStoreId)
+        for (const item of itemsInStore) {
             const itemAisle = aislesAndItems.find((aisle) =>
                 aisle.sections.some((section) => item.grocerysection === section)
             )
