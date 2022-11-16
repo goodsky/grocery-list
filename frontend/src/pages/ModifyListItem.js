@@ -92,13 +92,11 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
     }
 
     const handleGroceryChange = (event, newValue) => {
-        console.log('Selected Grocery', newValue)
         setSelectedGrocery(newValue)
         setUnit(newValue.units)
     }
 
     const handleGroceryInputChange = (event, newValue) => {
-        console.log('Grocery Name', newValue)
         setGroceryName(newValue)
 
         if (selectedGrocery && selectedGrocery.name !== newValue) {
