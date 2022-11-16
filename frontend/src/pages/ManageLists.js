@@ -20,6 +20,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import dayjs from 'dayjs'
 
 import listService from '../services/lists'
+import ConfirmDialog from '../components/ConfirmDialog'
 import PopUp from '../components/PopUp'
 import { useOutsideAlerter } from '../components/Utils'
 
@@ -27,6 +28,7 @@ const ManageLists = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [lists, setLists] = useState([])
     const [selectedId, setSelectedId] = useState(null)
+    const [pendingDeleteList, setPendingDeleteList] = useState(null)
 
     const navigate = useNavigate()
     const popup = useRef()
@@ -73,7 +75,10 @@ const ManageLists = () => {
                         <IconButton onClick={() => navigate(`/lists/edit/${list.id}`)}>
                             <EditIcon />
                         </IconButton>
-                        <IconButton onClick={() => deleteList(list.id)}>
+                        <IconButton onClick={() => navigate(`/lists/shop/${list.id}`)}>
+                            <ShoppingCartIcon />
+                        </IconButton>
+                        <IconButton onClick={() => setPendingDeleteList(list)}>
                             <DeleteIcon />
                         </IconButton>
                     </ListItemSecondaryAction>
@@ -97,19 +102,16 @@ const ManageLists = () => {
                     >
                         Add
                     </Button>
-                    <Button
-                        variant="contained"
-                        sx={{ width: 200 }}
-                        endIcon={<ShoppingCartIcon />}
-                        component={Link}
-                        to={`/lists/shop/${selectedId}`}
-                        disabled={!selectedId}
-                    >
-                        Go Shopping
-                    </Button>
                 </Stack>
                 <Paper>{content}</Paper>
             </div>
+            <ConfirmDialog
+                title="Confirm"
+                prompt={`Are you sure you want to delete list "${pendingDeleteList?.name}"?`}
+                isOpen={pendingDeleteList !== null}
+                close={() => setPendingDeleteList(null)}
+                onConfirm={() => deleteList(pendingDeleteList.id)}
+            />
         </Container>
     )
 }

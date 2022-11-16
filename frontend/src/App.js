@@ -60,6 +60,11 @@ function App() {
         )
     }
 
+    if (token.expiresDate < new Date()) {
+        console.warning('User token expired! Logging out.')
+        logOut()
+    }
+
     return (
         <Container>
             <NavBar userToken={token} logOut={logOut} />

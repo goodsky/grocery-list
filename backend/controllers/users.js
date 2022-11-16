@@ -68,16 +68,19 @@ router.post('/login', async (request, response) => {
         return
     }
 
+    const expiresDate = new Date()
+    expiresDate.setDate(expiresDate.getDate() + config.JWT_EXPIRATION_DAYS)
     const payload = {
         id: user.id,
         username: user.username,
         joinedDate: user.joinedDate,
+        expiresDate,
         isAdmin: user.isAdmin,
     }
 
     logger.info('Successful login for user', payload)
 
-    const token = jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRATION })
+    const token = jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRATION_SECONDS })
     response.status(200).json({ ...payload, token })
 })
 
