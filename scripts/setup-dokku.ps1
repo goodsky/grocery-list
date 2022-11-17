@@ -86,12 +86,19 @@ Download-PublicKey -name "skylers-dokku" -file "$certDir\dokku_rsa.pub"
 Write-Host "Downloading Dokku private key from Azure KeyVault"
 Download-PrivateKey -name "skylers-dokku-private" -file "$certDir\dokku_rsa"
 
+Write-Host "Downloading Dokku Deployment public key from Azure SSH"
+Download-PublicKey -name "skylers-dokku-deployment" -file "$certDir\dokku_deployment_rsa.pub"
+
+Write-Host "Downloading Dokku Deployment private key from Azure KeyVault"
+Download-PrivateKey -name "skylers-dokku-deployment-private" -file "$certDir\dokku_deployment_rsa"
+
 if (-not (Test-CommandExists ssh-add)) {
     Write-Error "Could not find OpenSSH commands installed on this computer. Make sure OpenSSH is installed and the service is running."
     return -1
 }
 
 ssh-add "$certDir\dokku_rsa"
+ssh-add "$certDir\dokku_deployment_rsa"
 
 if (-not (Test-CommandExists git)) {
     Write-Error "git is not installed or is not in path"
@@ -100,7 +107,7 @@ if (-not (Test-CommandExists git)) {
 
 # Add the dokku remote to the repository
 Write-Host "Configuring git remote for Dokku deployment"
-git remote add dokku dokku@skylers-dokku.westus2.cloudapp.azure.com:grocery-list
+git remote add dokku dokku@dokku-dev.skylers.app:grocery-list
 
 Write-Host "*******************************************************************************************************************"
 Write-Host "To SSH to VM or deploy via git don't forget to install OpenSSH and enable the OpenSSH Authentication Agent service!"
