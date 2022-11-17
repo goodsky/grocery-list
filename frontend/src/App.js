@@ -1,11 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { Container, Paper, Typography } from '@mui/material'
 import Login from './pages/Login'
 import ManageGroceries from './pages/ManageGroceries'
 import ManageLists from './pages/ManageLists'
 import ManageStores from './pages/ManageStores'
-import ModifyGrocery from './pages/ModifyGrocery'
 import ModifyListIndex from './pages/ModifyListIndex'
 import ModifyStore from './pages/ModifyStore'
 import Shopping from './pages/Shopping'
@@ -45,6 +44,13 @@ function App() {
         navigate('/')
     }
 
+    useEffect(() => {
+        if (token && (token.expiresDate === undefined || token.expiresDate < new Date())) {
+            console.warn('User token expired! Logging out.')
+            logOut()
+        }
+    })
+
     if (!token) {
         return (
             <Container maxWidth="sm">
@@ -60,11 +66,6 @@ function App() {
         )
     }
 
-    if (token.expiresDate < new Date()) {
-        console.warning('User token expired! Logging out.')
-        logOut()
-    }
-
     return (
         <Container>
             <NavBar userToken={token} logOut={logOut} />
@@ -72,8 +73,6 @@ function App() {
                 <Route path="*" element={<NotFound />} />
                 <Route path="/" element={<ManageLists />} />
                 <Route path="/groceries" element={<ManageGroceries />} />
-                <Route path="/groceries/add" element={<ModifyGrocery isEdit={false} />} />
-                <Route path="/groceries/edit/:id" element={<ModifyGrocery isEdit={true} />} />
                 <Route path="/lists" element={<ManageLists />} />
                 <Route path="/lists/add" element={<ModifyListIndex isEdit={false} />} />
                 <Route path="/lists/edit/:id" element={<ModifyListIndex isEdit={true} />} />

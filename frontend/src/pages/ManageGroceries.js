@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Box, Button, Stack, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import { DataGrid } from '@mui/x-data-grid'
 import groceryService from '../services/groceries'
 
+import ModifyGroceryDialog from './ModifyGroceryDialog'
+
 const ManageGroceries = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [groceries, setGroceries] = useState([])
     const [selectedId, setSelectedId] = useState('')
+
+    const [isDialogOpen, setDialogOpen] = useState('')
 
     useEffect(() => {
         const initializeGroceries = async () => {
@@ -21,8 +24,10 @@ const ManageGroceries = () => {
             setIsLoading(false)
         }
 
-        initializeGroceries()
-    }, [])
+        if (!isDialogOpen) {
+            initializeGroceries()
+        }
+    }, [isDialogOpen])
 
     const handleSelectionUpdate = (ids) => {
         if (ids.length > 0) {
@@ -49,8 +54,7 @@ const ManageGroceries = () => {
                         variant="contained"
                         sx={{ width: 100 }}
                         endIcon={<AddIcon />}
-                        component={Link}
-                        to="/groceries/add"
+                        onClick={() => setDialogOpen('add')}
                     >
                         Add
                     </Button>
@@ -58,9 +62,8 @@ const ManageGroceries = () => {
                         variant="contained"
                         sx={{ width: 100 }}
                         endIcon={<EditIcon />}
-                        component={Link}
-                        to={`/groceries/edit/${selectedId}`}
                         disabled={!selectedId}
+                        onClick={() => setDialogOpen('edit')}
                     >
                         Edit
                     </Button>
@@ -75,6 +78,15 @@ const ManageGroceries = () => {
                     onSelectionModelChange={handleSelectionUpdate}
                 />
             </Box>
+            <ModifyGroceryDialog
+                isEdit={isDialogOpen === 'edit'}
+                groceryId={selectedId}
+                isOpen={!!isDialogOpen}
+                close={() => {
+                    // NB: This refreshes the grocery list effect
+                    setDialogOpen('')
+                }}
+            />
         </>
     )
 }

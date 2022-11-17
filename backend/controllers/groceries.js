@@ -28,6 +28,8 @@ router.post('/', middleware.tokenAdminRequired, async (request, response) => {
 router.get('/', middleware.tokenRequired, async (request, response) => {
     const groceries = await groceryDb.getGroceries()
 
+    groceries.sort((a, b) => a.id - b.id)
+
     logger.info('Read groceries count', groceries.length)
     response.status(200).json(groceries)
 })
