@@ -24,7 +24,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import PopUp from '../components/PopUp'
 import { useOutsideAlerter } from '../components/Utils'
 
-const ManageLists = () => {
+const ListsIndex = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [lists, setLists] = useState([])
     const [selectedId, setSelectedId] = useState(null)
@@ -66,24 +66,30 @@ const ManageLists = () => {
         </Stack>
     ) : (
         <List>
-            {lists.map((list) => (
-                <ListItem key={list.id} selected={selectedId === list.id} onClick={() => setSelectedId(list.id)}>
-                    <ListItemText>
-                        {dayjs(list.shoppingDate).format('YYYY/MM/DD')} - <b>{list.name}</b>
-                    </ListItemText>
-                    <ListItemSecondaryAction>
-                        <IconButton onClick={() => navigate(`/lists/edit/${list.id}`)}>
-                            <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => navigate(`/lists/shop/${list.id}`)}>
-                            <ShoppingCartIcon />
-                        </IconButton>
-                        <IconButton onClick={() => setPendingDeleteList(list)}>
-                            <DeleteIcon />
-                        </IconButton>
-                    </ListItemSecondaryAction>
+            {lists.length === 0 ? (
+                <ListItem key={0}>
+                    <i>You have no lists! Click Add+ to get started.</i>
                 </ListItem>
-            ))}
+            ) : (
+                lists.map((list) => (
+                    <ListItem key={list.id} selected={selectedId === list.id} onClick={() => setSelectedId(list.id)}>
+                        <ListItemText>
+                            {dayjs(list.shoppingDate).format('YYYY/MM/DD')} - <b>{list.name}</b>
+                        </ListItemText>
+                        <ListItemSecondaryAction>
+                            <IconButton onClick={() => navigate(`/lists/edit/${list.id}`)}>
+                                <EditIcon />
+                            </IconButton>
+                            <IconButton onClick={() => navigate(`/lists/shop/${list.id}`)}>
+                                <ShoppingCartIcon />
+                            </IconButton>
+                            <IconButton onClick={() => setPendingDeleteList(list)}>
+                                <DeleteIcon />
+                            </IconButton>
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                ))
+            )}
         </List>
     )
 
@@ -116,4 +122,4 @@ const ManageLists = () => {
     )
 }
 
-export default ManageLists
+export default ListsIndex

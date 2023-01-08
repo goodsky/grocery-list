@@ -5,9 +5,9 @@ import EditIcon from '@mui/icons-material/Edit'
 import { DataGrid } from '@mui/x-data-grid'
 import groceryService from '../services/groceries'
 
-import ModifyGroceryDialog from './ModifyGroceryDialog'
+import GroceryDialog from '../components/GroceryDialog'
 
-const ManageGroceries = () => {
+const GroceriesIndex = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [groceries, setGroceries] = useState([])
     const [selectedId, setSelectedId] = useState('')
@@ -78,7 +78,7 @@ const ManageGroceries = () => {
                     onSelectionModelChange={handleSelectionUpdate}
                 />
             </Box>
-            <ModifyGroceryDialog
+            <GroceryDialog
                 isEdit={isDialogOpen === 'edit'}
                 groceryId={selectedId}
                 isOpen={!!isDialogOpen}
@@ -91,4 +91,4 @@ const ManageGroceries = () => {
     )
 }
 
-export default ManageGroceries
+export default GroceriesIndex

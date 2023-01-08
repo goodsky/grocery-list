@@ -7,7 +7,7 @@ import EditIcon from '@mui/icons-material/Edit'
 
 import storeService from '../services/stores'
 
-const ManageStores = () => {
+const StoresIndex = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [stores, setStores] = useState([])
     const [selectedId, setSelectedId] = useState('')
@@ -78,4 +78,4 @@ const ManageStores = () => {
     )
 }
 
-export default ManageStores
+export default StoresIndex

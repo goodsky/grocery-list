@@ -24,7 +24,7 @@ import TabPanelList from '../components/TabPanelList'
 import listService from '../services/lists'
 import listItemService from '../services/listItems'
 
-const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
+const ListAddOrEdit = ({ dispatch, isEdit, list, storeIndex, stores }) => {
     const [storeDialogOpen, setStoreDialogOpen] = useState(false)
     const [storeDialogSelection, setStoreDialogSelection] = useState(null)
 
@@ -34,6 +34,7 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
 
     const updateNameOrDate = async () => {
         if (list.isChanged) {
+            console.log(`UpdateNameOrDate: ${list.shoppingDate}`)
             dispatch({ type: 'resetIsChanged' })
             const updatedList = {
                 id: list.id,
@@ -165,4 +166,4 @@ const ModifyList = ({ dispatch, isEdit, list, storeIndex, stores }) => {
     )
 }
 
-export default ModifyList
+export default ListAddOrEdit

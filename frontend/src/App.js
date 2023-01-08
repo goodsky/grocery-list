@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { Container, Paper, Typography } from '@mui/material'
 import Login from './pages/Login'
-import ManageGroceries from './pages/ManageGroceries'
-import ManageLists from './pages/ManageLists'
-import ManageStores from './pages/ManageStores'
-import ModifyListIndex from './pages/ModifyListIndex'
-import ModifyStore from './pages/ModifyStore'
+import GroceriesIndex from './pages/GroceriesIndex'
+import ListsIndex from './pages/ListsIndex'
+import StoresIndex from './pages/StoresIndex'
+import ListContainer from './pages/ListContainer'
+import StoreContainer from './pages/StoreContainer'
 import Shopping from './pages/Shopping'
 import NavBar from './components/NavBar'
 import NotFound from './pages/NotFound'
@@ -45,7 +45,7 @@ function App() {
     }
 
     useEffect(() => {
-        if (token && (token.expiresDate === undefined || token.expiresDate < new Date())) {
+        if (token && (token.expiresDate === undefined || new Date(token.expiresDate) < new Date())) {
             console.warn('User token expired! Logging out.')
             logOut()
         }
@@ -71,15 +71,15 @@ function App() {
             <NavBar userToken={token} logOut={logOut} />
             <Routes>
                 <Route path="*" element={<NotFound />} />
-                <Route path="/" element={<ManageLists />} />
-                <Route path="/groceries" element={<ManageGroceries />} />
-                <Route path="/lists" element={<ManageLists />} />
-                <Route path="/lists/add" element={<ModifyListIndex isEdit={false} />} />
-                <Route path="/lists/edit/:id" element={<ModifyListIndex isEdit={true} />} />
+                <Route path="/" element={<ListsIndex />} />
+                <Route path="/groceries" element={<GroceriesIndex />} />
+                <Route path="/lists" element={<ListsIndex />} />
+                <Route path="/lists/add" element={<ListContainer isEdit={false} />} />
+                <Route path="/lists/edit/:id" element={<ListContainer isEdit={true} />} />
                 <Route path="/lists/shop/:id" element={<Shopping isEdit={true} />} />
-                <Route path="/stores" element={<ManageStores />} />
-                <Route path="/stores/add" element={<ModifyStore isEdit={false} />} />
-                <Route path="/stores/edit/:id" element={<ModifyStore isEdit={true} />} />
+                <Route path="/stores" element={<StoresIndex />} />
+                <Route path="/stores/add" element={<StoreContainer isEdit={false} />} />
+                <Route path="/stores/edit/:id" element={<StoreContainer isEdit={true} />} />
             </Routes>
         </Container>
     )

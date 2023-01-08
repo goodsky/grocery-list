@@ -18,7 +18,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import PopUp from '../components/PopUp'
 import DraggableList from '../components/DraggableList'
 
-const ModifyStoreAisles = ({ dispatch, isEdit, store, submitChanges }) => {
+const StoreAddOrEdit = ({ dispatch, isEdit, store, submitChanges }) => {
     const popup = useRef()
 
     const title = isEdit ? 'Modify Store' : 'Add a Store'
@@ -118,4 +118,4 @@ const ModifyStoreAisles = ({ dispatch, isEdit, store, submitChanges }) => {
     )
 }
 
-export default ModifyStoreAisles
+export default StoreAddOrEdit

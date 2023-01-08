@@ -15,7 +15,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import PopUp from '../components/PopUp'
 
-const ModifyStoreSections = ({ aisle, dispatch, isEdit }) => {
+const StoreAisleAddOrEdit = ({ aisle, dispatch, isEdit }) => {
     const [name, setName] = useState(isEdit ? aisle.name : '')
     const [sections, setSections] = useState(isEdit ? aisle.sections : [])
     const [newSection, setNewSection] = useState('')
@@ -127,4 +127,4 @@ const ModifyStoreSections = ({ aisle, dispatch, isEdit }) => {
     )
 }
 
-export default ModifyStoreSections
+export default StoreAisleAddOrEdit

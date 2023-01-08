@@ -3,8 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Alert, AlertTitle, Button, Container, Stack } from '@mui/material'
 import storeService from '../services/stores'
 import storeServiceHelper from '../services/storeHelper'
-import ModifyStoreAisles from './ModifyStoreAisles'
-import ModifyStoreSections from './ModifyStoreSections'
+import StoreAddOrEdit from './StoreAddOrEdit'
+import StoreAisleAddOrEdit from './StoreAisleAddOrEdit'
 
 const initialState = {
     store: { id: undefined, name: '', address: '', aisles: [] },
@@ -62,7 +62,7 @@ const reducer = (state, action) => {
     }
 }
 
-const ModifyStore = ({ isEdit }) => {
+const StoreContainer = ({ isEdit }) => {
     const [state, dispatch] = useReducer(reducer, initialState)
 
     const navigate = useNavigate()
@@ -105,12 +105,7 @@ const ModifyStore = ({ isEdit }) => {
     switch (state.editMode) {
         case 'Aisles':
             return (
-                <ModifyStoreAisles
-                    dispatch={dispatch}
-                    isEdit={isEdit}
-                    store={state.store}
-                    submitChanges={submitChanges}
-                />
+                <StoreAddOrEdit dispatch={dispatch} isEdit={isEdit} store={state.store} submitChanges={submitChanges} />
             )
 
         case 'Sections':
@@ -123,7 +118,7 @@ const ModifyStore = ({ isEdit }) => {
                 return null
             }
 
-            return <ModifyStoreSections aisle={aisle} dispatch={dispatch} isEdit={isEditAisle} />
+            return <StoreAisleAddOrEdit aisle={aisle} dispatch={dispatch} isEdit={isEditAisle} />
 
         case 'Error':
             return (
@@ -157,4 +152,4 @@ const generateUniqueId = (existingIds) => {
     return fakeId
 }
 
-export default ModifyStore
+export default StoreContainer

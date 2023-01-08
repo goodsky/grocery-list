@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Container, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 
-import ModifyList from './ModifyList'
+import ListAddOrEdit from './ListAddOrEdit'
 import ModifyListItem from './ModifyListItem'
 import PopUp from '../components/PopUp'
 
@@ -86,7 +86,7 @@ const reducer = (state, action) => {
     }
 }
 
-const ModifyListIndex = ({ isEdit }) => {
+const ListContainer = ({ isEdit }) => {
     const [state, dispatch] = useReducer(reducer, initialState)
 
     const popup = useRef()
@@ -95,9 +95,9 @@ const ModifyListIndex = ({ isEdit }) => {
 
     if (isEdit) {
         if (!id) {
-            console.error('Missing id while modifying a store!')
+            console.error('Missing id while modifying a list!')
         } else if (!idInt) {
-            console.error('Invalid id while modifying a store!')
+            console.error('Invalid id while modifying a list!')
         }
     }
 
@@ -170,7 +170,7 @@ const ModifyListIndex = ({ isEdit }) => {
         switch (state.mode) {
             case 'list':
                 return (
-                    <ModifyList
+                    <ListAddOrEdit
                         dispatch={dispatch}
                         isEdit={isEdit}
                         list={state.list}
@@ -218,4 +218,4 @@ const ModifyListIndex = ({ isEdit }) => {
     )
 }
 
-export default ModifyListIndex
+export default ListContainer

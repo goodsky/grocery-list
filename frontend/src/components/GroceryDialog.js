@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Autocomplete, Button, Dialog, DialogContent, DialogTitle, Stack, TextField } from '@mui/material'
-import PopUp from '../components/PopUp'
+import PopUp from './PopUp'
 import groceryService from '../services/groceries'
 import sectionsService from '../services/sections'
 
-const ModifyGroceryDialog = (props) => {
+const GroceryDialog = (props) => {
     const { isEdit, groceryId, isOpen, close } = props
 
     const [name, setName] = useState('')
@@ -124,4 +124,4 @@ const ModifyGroceryDialog = (props) => {
     )
 }
 
-export default ModifyGroceryDialog
+export default GroceryDialog
