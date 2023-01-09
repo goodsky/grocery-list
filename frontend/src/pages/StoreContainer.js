@@ -15,21 +15,6 @@ const initialState = {
 
 const reducer = (state, action) => {
     switch (action.type) {
-        case 'initialize':
-            return { ...state, store: action.store }
-
-        case 'updateName':
-            return { ...state, store: { ...state.store, name: action.name } }
-
-        case 'updateAddress':
-            return { ...state, store: { ...state.store, address: action.address } }
-
-        case 'modifyNewAisle':
-            return { ...state, editMode: 'Sections', aisleIndex: null }
-
-        case 'modifyExistingAisle':
-            return { ...state, editMode: 'Sections', aisleIndex: action.index }
-
         case 'addAisle':
             const newAisle = { ...action.aisle }
             newAisle.id = generateUniqueId(state.store.aisles.map((aisle) => aisle.id))
@@ -38,24 +23,39 @@ const reducer = (state, action) => {
 
             return { ...state, editMode: 'Aisles', store: { ...state.store, aisles: newAisles } }
 
-        case 'updateAisle':
-            const updatedAisles = state.store.aisles.map((x) => (x.id === action.aisle.id ? action.aisle : x))
-
-            return { ...state, editMode: 'Aisles', store: { ...state.store, aisles: updatedAisles } }
+        case 'cancelAisleUpdate':
+            return { ...state, editMode: 'Aisles' }
 
         case 'deleteAisle':
             const fewerAisles = state.store.aisles.filter((x, index) => index !== action.index)
 
             return { ...state, store: { ...state.store, aisles: fewerAisles } }
 
-        case 'cancelAisleUpdate':
-            return { ...state, editMode: 'Aisles' }
+        case 'error':
+            return { ...state, editMode: 'Error', errorMsg: action.message }
+
+        case 'initialize':
+            return { ...state, store: action.store }
+
+        case 'modifyExistingAisle':
+            return { ...state, editMode: 'Sections', aisleIndex: action.index }
+
+        case 'modifyNewAisle':
+            return { ...state, editMode: 'Sections', aisleIndex: null }
+
+        case 'updateAddress':
+            return { ...state, store: { ...state.store, address: action.address } }
+
+        case 'updateAisle':
+            const updatedAisles = state.store.aisles.map((x) => (x.id === action.aisle.id ? action.aisle : x))
+
+            return { ...state, editMode: 'Aisles', store: { ...state.store, aisles: updatedAisles } }
 
         case 'updateAllAisles':
             return { ...state, store: { ...state.store, aisles: action.aisles } }
 
-        case 'error':
-            return { ...state, editMode: 'Error', errorMsg: action.message }
+        case 'updateName':
+            return { ...state, store: { ...state.store, name: action.name } }
 
         default:
             throw new Error(`Unknown action type ${action.type} in ModifyStore`)
@@ -113,7 +113,7 @@ const StoreContainer = ({ isEdit }) => {
             const aisle = state.store.aisles[state.aisleIndex]
 
             if (isEditAisle && !aisle) {
-                console.error('Attempting to modify unknown aisle index', state.aisleIndex)
+                console.error('Attempting to update unknown aisle index', state.aisleIndex)
                 dispatch({ type: 'error', message: 'Ooops! Something bad happened.' })
                 return null
             }

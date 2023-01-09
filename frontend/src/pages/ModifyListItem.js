@@ -11,8 +11,8 @@ const ModifyListItem = ({ dispatch, isEdit, list, item, groceries, store }) => {
     const [unit, setUnit] = useState('')
     const [note, setNote] = useState('')
 
-    const title = isEdit ? 'Modify List Item' : 'Add an Item'
-    const buttonVerb = isEdit ? 'Edit' : 'Add'
+    const title = isEdit ? 'Update List Item' : 'Add an Item'
+    const buttonVerb = isEdit ? 'Update' : 'Add'
 
     useEffect(() => {
         const fetchExistingItem = async (listId, itemId) => {

@@ -1,10 +1,6 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-    Autocomplete,
     Button,
-    Dialog,
-    DialogTitle,
     IconButton,
     ListItem,
     ListItemText,
@@ -21,16 +17,22 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
 
 import TabPanelList from '../components/TabPanelList'
+import ListItemDialog from '../components/ListItemDialog'
+import ListStoreDialog from '../components/ListStoreDialog'
 import listService from '../services/lists'
 import listItemService from '../services/listItems'
 
-const ListAddOrEdit = ({ dispatch, isEdit, list, storeIndex, stores }) => {
-    const [storeDialogOpen, setStoreDialogOpen] = useState(false)
-    const [storeDialogSelection, setStoreDialogSelection] = useState(null)
-
-    const title = isEdit ? 'Modify List' : 'Add a List'
-
-    const unusedStores = stores.filter((store) => !list.stores.some((usedStore) => usedStore.id === store.id))
+const ListAddOrEdit = ({
+    dispatch,
+    isEdit,
+    list,
+    storeTabIndex,
+    stores,
+    groceries,
+    itemDialogState,
+    storeDialogState,
+}) => {
+    const title = isEdit ? 'Update List' : 'Add a List'
 
     const updateNameOrDate = async () => {
         if (list.isChanged) {
@@ -78,7 +80,7 @@ const ListAddOrEdit = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                         color="primary"
                         variant="contained"
                         disabled={!list.stores || list.stores.length === 0}
-                        onClick={() => dispatch({ type: 'setMode', mode: 'item' })}
+                        onClick={() => dispatch({ type: 'openItemDialog' })}
                     >
                         Add Item
                     </Button>
@@ -86,15 +88,15 @@ const ListAddOrEdit = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                         sx={{ m: 1 }}
                         color="secondary"
                         variant="contained"
-                        onClick={() => setStoreDialogOpen(true)}
+                        onClick={() => dispatch({ type: 'openStoreDialog' })}
                     >
                         Add Store
                     </Button>
                 </Stack>
                 <Paper>
                     <TabPanelList
-                        value={storeIndex}
-                        updateIndex={(index) => dispatch({ type: 'setStoreIndex', index })}
+                        value={storeTabIndex}
+                        updateIndex={(index) => dispatch({ type: 'setStoreTabIndex', index })}
                         tabs={list.stores}
                         options={list.items}
                         optionInTab={(option, tab) => option.storeId === tab.id}
@@ -106,7 +108,7 @@ const ListAddOrEdit = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                                     />
                                     <ListItemSecondaryAction>
                                         <IconButton
-                                            onClick={() => dispatch({ type: 'setMode', mode: 'item', itemId: item.id })}
+                                            onClick={() => dispatch({ type: 'openItemDialog', itemId: item.id })}
                                         >
                                             <EditIcon />
                                         </IconButton>
@@ -123,45 +125,14 @@ const ListAddOrEdit = ({ dispatch, isEdit, list, storeIndex, stores }) => {
                     Done
                 </Button>
             </Stack>
-            <Dialog maxWidth="xs" fullWidth onClose={() => setStoreDialogOpen(false)} open={storeDialogOpen}>
-                <DialogTitle>Add a store</DialogTitle>
-                <Stack spacing={2} sx={{ m: 2 }}>
-                    <Autocomplete
-                        autoHighlight
-                        options={unusedStores}
-                        onChange={(event, newValue) => setStoreDialogSelection(newValue)}
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        renderOption={(props, option) => (
-                            <Stack component="li" {...props} sx={{ display: 'flex' }}>
-                                <Typography variant="body2" sx={{ alignSelf: 'start' }}>
-                                    {option.name}
-                                </Typography>
-                                <Typography variant="caption" sx={{ alignSelf: 'start' }}>
-                                    {option.address}
-                                </Typography>
-                            </Stack>
-                        )}
-                        renderInput={(params) => <TextField {...params} label="Store" variant="standard" />}
-                    />
-                    <Button
-                        onClick={() => {
-                            if (storeDialogSelection) {
-                                dispatch({ type: 'addStore', store: storeDialogSelection })
-                                setStoreDialogSelection(null)
-                                setStoreDialogOpen(false)
-                            }
-                        }}
-                        color="primary"
-                        variant="contained"
-                    >
-                        Add
-                    </Button>
-                    <Button onClick={() => setStoreDialogOpen(false)} color="secondary" variant="contained">
-                        Cancel
-                    </Button>
-                </Stack>
-            </Dialog>
+            <ListItemDialog
+                dispatch={dispatch}
+                list={list}
+                storeTabIndex={storeTabIndex}
+                groceries={groceries}
+                dialogState={itemDialogState}
+            />
+            <ListStoreDialog dispatch={dispatch} list={list} stores={stores} dialogState={storeDialogState} />
         </LocalizationProvider>
     )
 }

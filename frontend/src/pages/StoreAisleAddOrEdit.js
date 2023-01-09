@@ -22,8 +22,8 @@ const StoreAisleAddOrEdit = ({ aisle, dispatch, isEdit }) => {
 
     const popup = useRef()
 
-    const title = isEdit ? 'Modify Aisle' : 'Add an Aisle'
-    const buttonVerb = isEdit ? 'Edit' : 'Add'
+    const title = isEdit ? 'Update Aisle' : 'Add an Aisle'
+    const buttonVerb = isEdit ? 'Update' : 'Add'
 
     const handleAddSection = () => {
         if (!newSection) {

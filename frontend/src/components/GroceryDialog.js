@@ -14,8 +14,8 @@ const GroceryDialog = (props) => {
 
     const popup = useRef()
 
-    const title = isEdit ? 'Modify a Grocery' : 'Add a Grocery'
-    const buttonVerb = isEdit ? 'Edit' : 'Add'
+    const title = isEdit ? 'Update a Grocery' : 'Add a Grocery'
+    const buttonVerb = isEdit ? 'Update' : 'Add'
 
     useEffect(() => {
         const fetchGrocery = async (groceryId) => {

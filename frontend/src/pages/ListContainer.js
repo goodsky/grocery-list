@@ -4,7 +4,6 @@ import { Container, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 
 import ListAddOrEdit from './ListAddOrEdit'
-import ModifyListItem from './ModifyListItem'
 import PopUp from '../components/PopUp'
 
 import groceryService from '../services/groceries'
@@ -12,22 +11,117 @@ import listService from '../services/lists'
 import storeService from '../services/stores'
 
 const initialState = {
+    groceries: [],
+    itemDialogState: {
+        isOpen: false,
+        existingItemId: null,
+        groceryName: '',
+        grocerySelection: null,
+        amount: null,
+        unit: null,
+        note: null,
+    },
     list: {
         name: 'Shopping List',
-        shoppingDate: dayjs(), // TODO: don't flash the default values when editing an existing list
+        shoppingDate: dayjs(),
         items: [],
         stores: [],
         isChanged: false, // client only field
     },
-    mode: 'list',
-    editItemId: null,
-    storeIndex: 0,
-    groceries: [],
+    storeTabIndex: 0,
+    storeDialogState: {
+        isOpen: false,
+        selection: null,
+    },
     stores: [],
 }
 
 const reducer = (state, action) => {
     switch (action.type) {
+        case 'addItem':
+            const itemsWithAdded = state.list.items.concat(action.item)
+            return { ...state, list: { ...state.list, items: itemsWithAdded } }
+
+        case 'addStore':
+            const updatedStores = state.list.stores.concat(action.store)
+            return { ...state, list: { ...state.list, stores: updatedStores }, storeTabIndex: updatedStores.length - 1 }
+
+        case 'closeItemDialog':
+            return { ...state, itemDialogState: { isOpen: false } }
+
+        case 'closeStoreDialog':
+            return { ...state, storeDialogState: { isOpen: false, selection: null } }
+
+        case 'deleteItem':
+            const itemsWithoutRemoved = state.list.items.filter((item) => item.id !== action.id)
+            return { ...state, list: { ...state.list, items: itemsWithoutRemoved } }
+
+        case 'openItemDialog':
+            return {
+                ...state,
+                itemDialogState: {
+                    isOpen: true,
+                    existingItemId: action.itemId,
+                    groceryName: '',
+                    grocerySelection: null,
+                    amount: null,
+                    unit: null,
+                    note: null,
+                },
+            }
+
+        case 'openStoreDialog':
+            return { ...state, storeDialogState: { isOpen: true, selection: null } }
+
+        case 'resetIsChanged':
+            return { ...state, list: { ...state.list, isChanged: false } }
+
+        case 'setGroceries':
+            return { ...state, groceries: action.groceries }
+
+        case 'setList':
+            return { ...state, list: { ...action.list, isChanged: false } }
+
+        case 'setStoreDialogSelection':
+            return { ...state, storeDialogState: { isOpen: true, selection: action.selection } }
+
+        case 'setStoreTabIndex':
+            return { ...state, storeTabIndex: action.index }
+
+        case 'setStores':
+            return { ...state, stores: action.stores }
+
+        case 'updateItem':
+            const itemsWithUpdated = state.list.items.map((item) => (item.id === action.item.id ? action.item : item))
+            return { ...state, list: { ...state.list, items: itemsWithUpdated } }
+
+        case 'updateItemDialog':
+            const updatedItemDialogState = {
+                ...state.itemDialogState,
+            }
+
+            if (action.groceryName) {
+                updatedItemDialogState.groceryName = action.groceryName
+            }
+
+            if (action.grocerySelection) {
+                updatedItemDialogState.grocerySelection = action.grocerySelection
+            }
+
+            if (action.amount) {
+                updatedItemDialogState.amount = action.amount
+            }
+
+            if (action.unit) {
+                updatedItemDialogState.unit = action.unit
+            }
+
+            if (action.note) {
+                updatedItemDialogState.note = action.note
+            }
+
+            return { ...state, itemDialogState: updatedItemDialogState }
+
         case 'updateName':
             const nameChanged = state.list.name !== action.name
             return {
@@ -37,7 +131,6 @@ const reducer = (state, action) => {
 
         case 'updateShoppingDate':
             const shoppingDateChanged = state.list.shoppingDate !== action.shoppingDate
-            console.log('New Shopping Date', action.shoppingDate, shoppingDateChanged)
             return {
                 ...state,
                 list: {
@@ -46,40 +139,6 @@ const reducer = (state, action) => {
                     isChanged: state.list.isChanged || shoppingDateChanged,
                 },
             }
-
-        case 'resetIsChanged':
-            return { ...state, list: { ...state.list, isChanged: false } }
-
-        case 'addStore':
-            const updatedStores = state.list.stores.concat(action.store)
-            return { ...state, list: { ...state.list, stores: updatedStores }, storeIndex: updatedStores.length - 1 }
-
-        case 'addItem':
-            const itemsWithAdded = state.list.items.concat(action.item)
-            return { ...state, mode: 'list', list: { ...state.list, items: itemsWithAdded } }
-
-        case 'updateItem':
-            const itemsWithUpdated = state.list.items.map((item) => (item.id === action.item.id ? action.item : item))
-            return { ...state, mode: 'list', list: { ...state.list, items: itemsWithUpdated } }
-
-        case 'deleteItem':
-            const itemsWithoutRemoved = state.list.items.filter((item) => item.id !== action.id)
-            return { ...state, list: { ...state.list, items: itemsWithoutRemoved } }
-
-        case 'setStoreIndex':
-            return { ...state, storeIndex: action.index }
-
-        case 'setMode':
-            return { ...state, mode: action.mode, editItemId: action.itemId }
-
-        case 'setList':
-            return { ...state, list: { ...action.list, isChanged: false } }
-
-        case 'setGroceries':
-            return { ...state, groceries: action.groceries }
-
-        case 'setStores':
-            return { ...state, stores: action.stores }
 
         default:
             throw new Error(`Unknown action type ${action.type} in ModifyList`)
@@ -166,53 +225,20 @@ const ListContainer = ({ isEdit }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const getPageContent = () => {
-        switch (state.mode) {
-            case 'list':
-                return (
-                    <ListAddOrEdit
-                        dispatch={dispatch}
-                        isEdit={isEdit}
-                        list={state.list}
-                        storeIndex={state.storeIndex}
-                        stores={state.stores}
-                    />
-                )
-
-            case 'item':
-                const isEditItem = Number.isInteger(state.editItemId)
-                const item = isEditItem ? state.list.items.find((item) => item.id === state.editItemId) : null
-
-                console.log('item mode', state.editItemId, isEditItem, item)
-                if (isEditItem && !item) {
-                    console.error('Attempting to modify unknown aisle index', state.aisleIndex)
-                    dispatch({ type: 'error', message: 'Ooops! Something bad happened.' })
-                    return null
-                }
-
-                const store = state.list.stores[state.storeIndex]
-
-                return (
-                    <ModifyListItem
-                        dispatch={dispatch}
-                        isEdit={isEditItem}
-                        list={state.list}
-                        item={item}
-                        groceries={state.groceries}
-                        store={store}
-                    />
-                )
-
-            default:
-                console.error('Unknown page mode', state.mode)
-        }
-    }
-
     return (
         <Container maxWidth="sm">
             <Stack>
                 <PopUp ref={popup} />
-                {getPageContent()}
+                <ListAddOrEdit
+                    dispatch={dispatch}
+                    isEdit={isEdit}
+                    list={state.list}
+                    storeTabIndex={state.storeTabIndex}
+                    stores={state.stores}
+                    groceries={state.groceries}
+                    itemDialogState={state.itemDialogState}
+                    storeDialogState={state.storeDialogState}
+                />
             </Stack>
         </Container>
     )
