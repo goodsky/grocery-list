@@ -8,6 +8,7 @@ import PopUp from '../components/PopUp'
 
 import groceryService from '../services/groceries'
 import listService from '../services/lists'
+import sectionsService from '../services/sections'
 import storeService from '../services/stores'
 
 const initialState = {
@@ -17,9 +18,10 @@ const initialState = {
         existingItemId: null,
         groceryName: '',
         grocerySelection: null,
-        amount: null,
-        unit: null,
-        note: null,
+        amount: 1,
+        unit: '',
+        note: '',
+        section: '',
     },
     list: {
         name: 'Shopping List',
@@ -33,6 +35,7 @@ const initialState = {
         isOpen: false,
         selection: null,
     },
+    sections: [],
     stores: [],
 }
 
@@ -47,10 +50,10 @@ const reducer = (state, action) => {
             return { ...state, list: { ...state.list, stores: updatedStores }, storeTabIndex: updatedStores.length - 1 }
 
         case 'closeItemDialog':
-            return { ...state, itemDialogState: { isOpen: false } }
+            return { ...state, itemDialogState: initialState.itemDialogState }
 
         case 'closeStoreDialog':
-            return { ...state, storeDialogState: { isOpen: false, selection: null } }
+            return { ...state, storeDialogState: initialState.storeDialogState }
 
         case 'deleteItem':
             const itemsWithoutRemoved = state.list.items.filter((item) => item.id !== action.id)
@@ -60,18 +63,14 @@ const reducer = (state, action) => {
             return {
                 ...state,
                 itemDialogState: {
+                    ...initialState.itemDialogState,
                     isOpen: true,
                     existingItemId: action.itemId,
-                    groceryName: '',
-                    grocerySelection: null,
-                    amount: null,
-                    unit: null,
-                    note: null,
                 },
             }
 
         case 'openStoreDialog':
-            return { ...state, storeDialogState: { isOpen: true, selection: null } }
+            return { ...state, storeDialogState: { ...initialState.storeDialogState, isOpen: true, selection: null } }
 
         case 'resetIsChanged':
             return { ...state, list: { ...state.list, isChanged: false } }
@@ -88,6 +87,9 @@ const reducer = (state, action) => {
         case 'setStoreTabIndex':
             return { ...state, storeTabIndex: action.index }
 
+        case 'setSections':
+            return { ...state, sections: action.sections }
+
         case 'setStores':
             return { ...state, stores: action.stores }
 
@@ -100,24 +102,28 @@ const reducer = (state, action) => {
                 ...state.itemDialogState,
             }
 
-            if (action.groceryName) {
+            if (action.groceryName !== undefined) {
                 updatedItemDialogState.groceryName = action.groceryName
             }
 
-            if (action.grocerySelection) {
+            if (action.grocerySelection !== undefined) {
                 updatedItemDialogState.grocerySelection = action.grocerySelection
             }
 
-            if (action.amount) {
+            if (action.amount !== undefined) {
                 updatedItemDialogState.amount = action.amount
             }
 
-            if (action.unit) {
+            if (action.unit !== undefined) {
                 updatedItemDialogState.unit = action.unit
             }
 
-            if (action.note) {
+            if (action.note !== undefined) {
                 updatedItemDialogState.note = action.note
+            }
+
+            if (action.section !== undefined) {
+                updatedItemDialogState.section = action.section
             }
 
             return { ...state, itemDialogState: updatedItemDialogState }
@@ -206,6 +212,15 @@ const ListContainer = ({ isEdit }) => {
             }
         }
 
+        const fetchSections = async () => {
+            const result = await sectionsService.getAllSections()
+            if (result.success) {
+                dispatch({ type: 'setSections', sections: result.sections })
+            } else {
+                console.warn('Failed to load store sections')
+            }
+        }
+
         const fetchStores = async () => {
             const result = await storeService.getStores()
             if (result.success) {
@@ -220,6 +235,7 @@ const ListContainer = ({ isEdit }) => {
 
         fetchOrCreateList()
         fetchGroceries()
+        fetchSections()
         fetchStores()
         // I want this to happen once... but I may be making a mistake by removing this warning
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -235,6 +251,7 @@ const ListContainer = ({ isEdit }) => {
                     list={state.list}
                     storeTabIndex={state.storeTabIndex}
                     stores={state.stores}
+                    sections={state.sections}
                     groceries={state.groceries}
                     itemDialogState={state.itemDialogState}
                     storeDialogState={state.storeDialogState}

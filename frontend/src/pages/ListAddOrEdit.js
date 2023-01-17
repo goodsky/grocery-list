@@ -28,6 +28,7 @@ const ListAddOrEdit = ({
     list,
     storeTabIndex,
     stores,
+    sections,
     groceries,
     itemDialogState,
     storeDialogState,
@@ -130,6 +131,7 @@ const ListAddOrEdit = ({
                 list={list}
                 storeTabIndex={storeTabIndex}
                 groceries={groceries}
+                sections={sections}
                 dialogState={itemDialogState}
             />
             <ListStoreDialog dispatch={dispatch} list={list} stores={stores} dialogState={storeDialogState} />

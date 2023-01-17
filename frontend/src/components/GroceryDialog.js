@@ -91,26 +91,31 @@ const GroceryDialog = (props) => {
                         variant="standard"
                         onChange={(event) => setName(event.target.value)}
                     />
-                    <Autocomplete
-                        freeSolo
-                        options={sectionAutocomplete}
-                        value={section}
-                        onChange={(event, newValue) => setSection(newValue)}
-                        onInputChange={(event, newValue) => setSection(newValue)}
-                        onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault()
-                                e.target.blur()
-                            }
-                        }}
-                        renderInput={(params) => <TextField {...params} required label="Section" variant="standard" />}
-                    />
-                    <TextField
-                        label="Units"
-                        value={units}
-                        variant="standard"
-                        onChange={(event) => setUnits(event.target.value)}
-                    />
+                    <Stack direction="row">
+                        <Autocomplete
+                            freeSolo
+                            options={sectionAutocomplete}
+                            value={section}
+                            onChange={(event, newValue) => setSection(newValue)}
+                            onInputChange={(event, newValue) => setSection(newValue)}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    e.target.blur()
+                                }
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} required label="Section" variant="standard" />
+                            )}
+                            sx={{ flexGrow: 1 }}
+                        />
+                        <TextField
+                            label="Units"
+                            value={units}
+                            variant="standard"
+                            onChange={(event) => setUnits(event.target.value)}
+                        />
+                    </Stack>
                     <PopUp ref={popup} />
                     <Button type="submit" color="primary" variant="contained">
                         {buttonVerb}

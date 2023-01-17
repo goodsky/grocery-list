@@ -1,9 +1,14 @@
-import { Autocomplete, Button, Dialog, DialogTitle, Stack, TextField, Typography } from '@mui/material'
+import { useRef } from 'react'
+import { Autocomplete, Button, Dialog, DialogTitle, Stack, TextField } from '@mui/material'
+import PopUp from './PopUp'
+import groceryService from '../services/groceries'
 import listItemService from '../services/listItems'
 
-const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, dialogState }) => {
+const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, sections, dialogState }) => {
     const isEdit = Number.isInteger(dialogState.existingItemId)
     const item = isEdit ? list.items.find((item) => item.id === dialogState.existingItemId) : null
+
+    const popup = useRef()
 
     if (isEdit && !item) {
         console.error('Attempting to update unknown list item index', dialogState.existingItemId)
@@ -15,6 +20,8 @@ const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, dialogState 
 
     const title = isEdit ? 'Update List Item' : 'Add an Item'
     const buttonVerb = isEdit ? 'Update' : 'Add'
+
+    const isUnknownGrocery = !dialogState.grocerySelection
 
     const closeDialog = () => {
         dispatch({ type: 'closeItemDialog' })
@@ -29,12 +36,12 @@ const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, dialogState 
     }
 
     const handleGroceryChange = (event, newValue) => {
-        dispatch({ type: 'updateItemDialog', grocerySelection: newValue, unit: newValue.units })
+        let newUnits = newValue ? newValue.units : ''
+        dispatch({ type: 'updateItemDialog', grocerySelection: newValue, unit: newUnits })
     }
 
     const handleGroceryInputChange = (event, newValue) => {
         const selectionChanged = dialogState.grocerySelection && dialogState.grocerySelection.name !== newValue
-        console.log('GroceryInputChange', newValue, dialogState.grocerySelection, selectionChanged) // TODO: It looked like the selection was not getting cleared
         dispatch({
             type: 'updateItemDialog',
             groceryName: newValue,
@@ -44,16 +51,37 @@ const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, dialogState 
 
     const handleSubmit = async (event) => {
         event.preventDefault()
-        console.log(dialogState)
+        console.log('Add/Update list item', dialogState)
+
+        let groceryId = dialogState.grocerySelection?.id
+        if (isUnknownGrocery) {
+            const grocery = {
+                name: dialogState.groceryName,
+                section: dialogState.section,
+                units: dialogState.unit,
+            }
+
+            console.log('Adding grocery', grocery)
+            const result = await groceryService.addGrocery(grocery)
+            if (!result.success) {
+                popup.current.notify(
+                    `Uh oh! Failed to add '${grocery.name}' to database. Try again later!`,
+                    'error',
+                    5000
+                )
+                return
+            }
+
+            groceryId = result.grocery.id
+        }
+
         const currentItem = {
-            groceryId: dialogState.grocerySelection.id,
+            groceryId,
             storeId: activeStore.id,
             amount: dialogState.amount,
             unit: dialogState.unit,
             note: dialogState.note,
         }
-
-        console.log(currentItem)
 
         if (isEdit) {
             const updatedItem = { ...currentItem, id: item.id }
@@ -95,11 +123,14 @@ const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, dialogState 
         dispatch({ type: 'updateItemDialog', note: value })
     }
 
+    const setSection = (value) => {
+        dispatch({ type: 'updateItemDialog', section: value })
+    }
+
     return (
         <Dialog maxWidth="xs" fullWidth onClose={closeDialog} open={dialogState.isOpen}>
             <DialogTitle>{title}</DialogTitle>
-            <Stack component="form" spacing={2} onSubmit={handleSubmit}>
-                <Typography variant="h2">{title}</Typography>
+            <Stack component="form" spacing={2} sx={{ m: 2 }} onSubmit={handleSubmit}>
                 <Autocomplete
                     freeSolo
                     autoHighlight
@@ -114,6 +145,23 @@ const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, dialogState 
                         <TextField {...params} required autoFocus label="Grocery" variant="standard" />
                     )}
                 />
+                {isUnknownGrocery ? (
+                    <Autocomplete
+                        freeSolo
+                        options={sections}
+                        value={dialogState.section}
+                        onChange={(event, newValue) => setSection(newValue)}
+                        onInputChange={(event, newValue) => setSection(newValue)}
+                        onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault()
+                                e.target.blur()
+                            }
+                        }}
+                        renderInput={(params) => <TextField {...params} required label="Section" variant="standard" />}
+                        sx={{ flexGrow: 1 }}
+                    />
+                ) : null}
                 <Stack direction="row">
                     <TextField
                         required
@@ -139,6 +187,7 @@ const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, dialogState 
                     variant="standard"
                     onChange={(event) => setNote(event.target.value)}
                 />
+                <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">
                     {buttonVerb}
                 </Button>
