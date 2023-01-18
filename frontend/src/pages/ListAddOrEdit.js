@@ -110,9 +110,7 @@ const ListAddOrEdit = ({
                                         primary={`${item.groceryname} \tx ${item.amount} ${item.unit ? item.unit : ''}`}
                                     />
                                     <ListItemSecondaryAction>
-                                        <IconButton
-                                            onClick={() => dispatch({ type: 'openItemDialog', itemId: item.id })}
-                                        >
+                                        <IconButton onClick={() => dispatch({ type: 'openItemDialog', item })}>
                                             <EditIcon />
                                         </IconButton>
                                         <IconButton onClick={() => deleteListItem(item.id)}>

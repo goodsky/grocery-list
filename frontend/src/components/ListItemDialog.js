@@ -84,11 +84,11 @@ const ListItemDialog = ({ dispatch, list, storeTabIndex, groceries, sections, di
         }
 
         if (isEdit) {
-            const updatedItem = { ...currentItem, id: item.id }
+            const updatedItem = { ...currentItem, id: item.id, groceryname: dialogState.groceryName }
             // TODO: this should return back the modified item in its populated form
             const result = await listItemService.updateItem(list.id, updatedItem)
 
-            console.log('Updated item', result)
+            console.log('Updated item', result, updatedItem)
             if (result.success) {
                 dispatch({ type: 'updateItem', item: updatedItem })
             }

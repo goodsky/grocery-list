@@ -60,13 +60,35 @@ const reducer = (state, action) => {
             return { ...state, list: { ...state.list, items: itemsWithoutRemoved } }
 
         case 'openItemDialog':
-            return {
-                ...state,
-                itemDialogState: {
-                    ...initialState.itemDialogState,
-                    isOpen: true,
-                    existingItemId: action.itemId,
-                },
+            if (action.item) {
+                const selectedGrocery = state.groceries.find((grocery) => grocery.id === action.item.groceryId)
+
+                if (!selectedGrocery) {
+                    console.error('Trying to edit item but grocery could not be found!')
+                    return state
+                }
+
+                return {
+                    ...state,
+                    itemDialogState: {
+                        ...initialState.itemDialogState,
+                        isOpen: true,
+                        existingItemId: action.item.id,
+                        groceryName: selectedGrocery.name,
+                        grocerySelection: selectedGrocery,
+                        amount: action.item.amount,
+                        unit: action.item.unit,
+                        note: action.item.note,
+                    },
+                }
+            } else {
+                return {
+                    ...state,
+                    itemDialogState: {
+                        ...initialState.itemDialogState,
+                        isOpen: true,
+                    },
+                }
             }
 
         case 'openStoreDialog':
