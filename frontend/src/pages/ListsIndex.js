@@ -60,6 +60,12 @@ const ListsIndex = () => {
         setLists(updatedLists)
     }
 
+    const formatSubtitle = (list) => {
+        const shoppingDate = dayjs(list.shoppingDate).format('YYYY/MM/DD')
+        // TODO: we don't have items or stores in our data at this point
+        return shoppingDate
+    }
+
     const content = isLoading ? (
         <Stack alignItems="center">
             <CircularProgress sx={{ m: 3 }} />
@@ -73,9 +79,7 @@ const ListsIndex = () => {
             ) : (
                 lists.map((list) => (
                     <ListItem key={list.id} selected={selectedId === list.id} onClick={() => setSelectedId(list.id)}>
-                        <ListItemText>
-                            {dayjs(list.shoppingDate).format('YYYY/MM/DD')} - <b>{list.name}</b>
-                        </ListItemText>
+                        <ListItemText primary={list.name} secondary={formatSubtitle(list)} />
                         <ListItemSecondaryAction>
                             <IconButton onClick={() => navigate(`/lists/edit/${list.id}`)}>
                                 <EditIcon />

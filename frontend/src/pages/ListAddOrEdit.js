@@ -77,11 +77,12 @@ const ListAddOrEdit = ({
                 />
                 <Stack direction="row">
                     <Button
-                        sx={{ m: 1 }}
+                        sx={{ m: 1, flex: 1 }}
                         color="primary"
                         variant="contained"
                         disabled={!list.stores || list.stores.length === 0}
                         onClick={() => dispatch({ type: 'openItemDialog' })}
+                        disableRipple
                     >
                         Add Item
                     </Button>
@@ -90,8 +91,9 @@ const ListAddOrEdit = ({
                         color="secondary"
                         variant="contained"
                         onClick={() => dispatch({ type: 'openStoreDialog' })}
+                        disableRipple
                     >
-                        Add Store
+                        Change Stores
                     </Button>
                 </Stack>
                 <Paper>

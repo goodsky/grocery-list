@@ -33,7 +33,7 @@ const initialState = {
     storeTabIndex: 0,
     storeDialogState: {
         isOpen: false,
-        selection: null,
+        pendingRemoveStore: null,
     },
     sections: [],
     stores: [],
@@ -46,8 +46,8 @@ const reducer = (state, action) => {
             return { ...state, list: { ...state.list, items: itemsWithAdded } }
 
         case 'addStore':
-            const updatedStores = state.list.stores.concat(action.store)
-            return { ...state, list: { ...state.list, stores: updatedStores }, storeTabIndex: updatedStores.length - 1 }
+            const storesWithAdded = state.list.stores.concat(action.store)
+            return { ...state, list: { ...state.list, stores: storesWithAdded } }
 
         case 'closeItemDialog':
             return { ...state, itemDialogState: initialState.itemDialogState }
@@ -70,7 +70,19 @@ const reducer = (state, action) => {
             }
 
         case 'openStoreDialog':
-            return { ...state, storeDialogState: { ...initialState.storeDialogState, isOpen: true, selection: null } }
+            return {
+                ...state,
+                storeDialogState: { ...initialState.storeDialogState, isOpen: true, pendingRemoveStore: null },
+            }
+
+        case 'removeStore':
+            const storesMinusRemoved = state.list.stores.filter((store) => store.id !== action.store.id)
+            const itemsMinusStore = state.list.items.filter((item) => item.storeId !== action.store.id)
+            return {
+                ...state,
+                list: { ...state.list, stores: storesMinusRemoved, items: itemsMinusStore },
+                storeDialogState: { ...state.storeDialogState, pendingRemoveStore: null },
+            }
 
         case 'resetIsChanged':
             return { ...state, list: { ...state.list, isChanged: false } }
@@ -81,8 +93,8 @@ const reducer = (state, action) => {
         case 'setList':
             return { ...state, list: { ...action.list, isChanged: false } }
 
-        case 'setStoreDialogSelection':
-            return { ...state, storeDialogState: { isOpen: true, selection: action.selection } }
+        case 'setPendingRemoveStore':
+            return { ...state, storeDialogState: { ...state.storeDialogState, pendingRemoveStore: action.store } }
 
         case 'setStoreTabIndex':
             return { ...state, storeTabIndex: action.index }
@@ -180,6 +192,11 @@ const ListContainer = ({ isEdit }) => {
                     }
                     console.log('Fetched list', list)
                     dispatch({ type: 'setList', list })
+
+                    // Automatically open store dialog if there are no stores
+                    if (!list.stores?.length) {
+                        dispatch({ type: 'openStoreDialog' })
+                    }
                 } else {
                     console.error('Failed to fetch list', result)
                 }
@@ -191,6 +208,9 @@ const ListContainer = ({ isEdit }) => {
                 if (result.success) {
                     console.log('Added list', result.list)
                     dispatch({ type: 'setList', list: result.list })
+
+                    // Automatically open store dialog for new lists
+                    dispatch({ type: 'openStoreDialog' })
                 } else {
                     console.error('Failed to initialize list', result)
                 }
