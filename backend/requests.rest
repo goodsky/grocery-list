@@ -297,6 +297,15 @@ Content-Type: application/json
 DELETE {{host}}/api/stores/{{storeId}}/aisles/{{aisleId}}/sections/{{name}}
 Authorization: Bearer {{token}}
 
-### Get ALL Sections
+### Get ALL Sections - that are defined by stores
 GET {{host}}/api/sections
+Authorization: Bearer {{token}}
+
+### Get ALL Sections - that are defined by the groceries
+GET {{host}}/api/sections/groceries
+Authorization: Bearer {{token}}
+
+### Get Store Sections
+# @prompt storeId
+GET {{host}}/api/stores/{{storeId}}/sections
 Authorization: Bearer {{token}}

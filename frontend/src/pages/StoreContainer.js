@@ -1,6 +1,7 @@
 import { useEffect, useReducer } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Alert, AlertTitle, Button, Container, Stack } from '@mui/material'
+import sectionsService from '../services/sections'
 import storeService from '../services/stores'
 import storeServiceHelper from '../services/storeHelper'
 import StoreAddOrEdit from './StoreAddOrEdit'
@@ -11,6 +12,7 @@ const initialState = {
     editMode: 'Aisles',
     aisleIndex: null,
     errorMsg: null,
+    grocerySections: [],
 }
 
 const reducer = (state, action) => {
@@ -43,6 +45,9 @@ const reducer = (state, action) => {
         case 'modifyNewAisle':
             return { ...state, editMode: 'Sections', aisleIndex: null }
 
+        case 'setGrocerySections':
+            return { ...state, grocerySections: action.sections }
+
         case 'updateAddress':
             return { ...state, store: { ...state.store, address: action.address } }
 
@@ -69,6 +74,11 @@ const StoreContainer = ({ isEdit }) => {
     const { id } = useParams()
     const idInt = parseInt(id, 10)
 
+    const storeSections = new Set()
+    state.store.aisles.forEach((aisle) => aisle.sections.forEach((section) => storeSections.add(section)))
+
+    const unsetSections = state.grocerySections.filter((section) => !storeSections.has(section))
+
     if (isEdit) {
         if (!id) {
             console.error('Missing id while modifying a store!')
@@ -78,6 +88,15 @@ const StoreContainer = ({ isEdit }) => {
     }
 
     useEffect(() => {
+        const fetchGrocerySections = async () => {
+            const result = await sectionsService.getGrocerySections()
+            if (result.success) {
+                dispatch({ type: 'setGrocerySections', sections: result.sections })
+            } else {
+                dispatch({ type: 'error', message: 'Failed to load sections!' })
+            }
+        }
+
         const fetchStore = async (id) => {
             const result = await storeService.getStoreById(id, true)
             if (result.success) {
@@ -86,6 +105,8 @@ const StoreContainer = ({ isEdit }) => {
                 dispatch({ type: 'error', message: 'Failed to initialize store!' })
             }
         }
+
+        fetchGrocerySections()
 
         if (isEdit) {
             fetchStore(id)
@@ -105,7 +126,13 @@ const StoreContainer = ({ isEdit }) => {
     switch (state.editMode) {
         case 'Aisles':
             return (
-                <StoreAddOrEdit dispatch={dispatch} isEdit={isEdit} store={state.store} submitChanges={submitChanges} />
+                <StoreAddOrEdit
+                    dispatch={dispatch}
+                    isEdit={isEdit}
+                    store={state.store}
+                    submitChanges={submitChanges}
+                    unsetSections={unsetSections}
+                />
             )
 
         case 'Sections':
@@ -118,7 +145,15 @@ const StoreContainer = ({ isEdit }) => {
                 return null
             }
 
-            return <StoreAisleAddOrEdit aisle={aisle} dispatch={dispatch} isEdit={isEditAisle} />
+            return (
+                <StoreAisleAddOrEdit
+                    aisle={aisle}
+                    dispatch={dispatch}
+                    isEdit={isEditAisle}
+                    storeSections={storeSections}
+                    unsetSections={unsetSections}
+                />
+            )
 
         case 'Error':
             return (

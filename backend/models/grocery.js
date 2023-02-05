@@ -33,6 +33,14 @@ const convertRowToGrocery = (row) => {
     }
 }
 
+const convertRowToSection = (row) => {
+    if (!row) {
+        return null
+    }
+
+    return row[sectionColumn]
+}
+
 const addGrocery = async (grocery) => {
     await init()
 
@@ -74,6 +82,15 @@ const getGroceryById = async (id) => {
     return convertRowToGrocery(grocery)
 }
 
+const getGrocerySections = async () => {
+    await init()
+
+    const result = await db.query(`SELECT DISTINCT ${sectionColumn} FROM ${tablename}`)
+    const sections = result.rows
+
+    return sections.map((row) => convertRowToSection(row))
+}
+
 const updateGrocery = async (grocery) => {
     await init()
 
@@ -97,5 +114,6 @@ module.exports = {
     deleteGrocery,
     getGroceries,
     getGroceryById,
+    getGrocerySections,
     updateGrocery,
 }

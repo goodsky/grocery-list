@@ -83,6 +83,18 @@ router.get('/:storeId/aisles/:aisleId/sections', middleware.tokenRequired, async
     response.status(200).json(sections)
 })
 
+// GET /api/stores/:storeId/sections
+// Helper API: Get all sections for this aisle in one call
+router.get('/:storeId/sections', middleware.tokenRequired, async (request, response) => {
+    const storeId = getStoreId(request, response)
+    if (!storeId) {
+        return
+    }
+
+    const sections = await sectionDb.getSectionsByStoreId(storeId)
+    response.status(200).json(sections)
+})
+
 // PUT /api/stores/:storeId/aisles/:aisleId/sections
 // Helper API: Set all sections for this aisle in one call
 router.put('/:storeId/aisles/:aisleId/sections', middleware.tokenAdminRequired, async (request, response) => {

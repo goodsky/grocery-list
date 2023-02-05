@@ -8,7 +8,7 @@
             "host": "https://groceries.skylers.app"
         },
         "dokku": {
-            "host": "http://grocery-list.dokku-dev.skylers.app"
+            "host": "https://grocery-list.dokku-dev.skylers.app"
         }
     }
 }

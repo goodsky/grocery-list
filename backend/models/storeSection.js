@@ -74,6 +74,22 @@ const getSectionsByAisleId = async (aisleId) => {
     return sections.map((row) => convertRowToSection(row))
 }
 
+const getSectionsByStoreId = async (storeId) => {
+    await init()
+
+    const result = await db.query(
+        `SELECT
+            ${tablename}.${nameColumn} AS ${nameColumn}
+        FROM ${aisleDb.tablename}
+            INNER JOIN ${tablename} ON ${aisleDb.tablename}.${aisleDb.primaryKey} = ${tablename}.${aisleIdColumn}
+        WHERE storeId = $1`,
+        [storeId]
+    )
+    const sections = result.rows
+
+    return sections.map((row) => convertRowToSection(row))
+}
+
 module.exports = {
     tablename,
     addSection,
@@ -81,4 +97,5 @@ module.exports = {
     deleteSectionByAisleId,
     getAllSections,
     getSectionsByAisleId,
+    getSectionsByStoreId,
 }

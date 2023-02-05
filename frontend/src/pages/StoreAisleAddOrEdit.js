@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import {
+    Autocomplete,
     Button,
     Container,
     List,
@@ -15,7 +16,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import PopUp from '../components/PopUp'
 
-const StoreAisleAddOrEdit = ({ aisle, dispatch, isEdit }) => {
+const StoreAisleAddOrEdit = ({ aisle, dispatch, isEdit, unsetSections }) => {
     const [name, setName] = useState(isEdit ? aisle.name : '')
     const [sections, setSections] = useState(isEdit ? aisle.sections : [])
     const [newSection, setNewSection] = useState('')
@@ -79,18 +80,20 @@ const StoreAisleAddOrEdit = ({ aisle, dispatch, isEdit }) => {
                     <Stack>
                         <Typography>{sections.length} Section Tags</Typography>
                         <Stack direction="row">
-                            <TextField
-                                label="Section"
+                            <Autocomplete
+                                freeSolo
+                                options={unsetSections}
                                 value={newSection}
-                                variant="standard"
-                                onChange={(event) => setNewSection(event.target.value)}
+                                onChange={(event, newValue) => setNewSection(newValue)}
+                                onInputChange={(event, newValue) => setNewSection(newValue)}
                                 onKeyPress={(e) => {
                                     if (e.key === 'Enter') {
                                         e.preventDefault()
                                         handleAddSection()
                                     }
                                 }}
-                                sx={{ flex: 1 }}
+                                renderInput={(params) => <TextField {...params} label="Section" variant="standard" />}
+                                sx={{ flexGrow: 1 }}
                             />
                             <Button
                                 sx={{ m: 1 }}

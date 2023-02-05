@@ -1,9 +1,15 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
+    Alert,
     Button,
     Container,
+    Dialog,
+    DialogContent,
+    DialogTitle,
     IconButton,
+    List,
+    ListItem,
     ListItemIcon,
     ListItemSecondaryAction,
     ListItemText,
@@ -18,7 +24,9 @@ import EditIcon from '@mui/icons-material/Edit'
 import PopUp from '../components/PopUp'
 import DraggableList from '../components/DraggableList'
 
-const StoreAddOrEdit = ({ dispatch, isEdit, store, submitChanges }) => {
+const StoreAddOrEdit = ({ dispatch, isEdit, store, submitChanges, unsetSections }) => {
+    const [showUnsetSections, setShowUnsetSections] = useState(false)
+
     const popup = useRef()
 
     const title = isEdit ? 'Update Store' : 'Add a Store'
@@ -105,6 +113,18 @@ const StoreAddOrEdit = ({ dispatch, isEdit, store, submitChanges }) => {
                         )}
                         onDragEnd={handleAisleReorder}
                     />
+                    {unsetSections.length > 0 ? (
+                        <Alert
+                            severity="warning"
+                            action={
+                                <Button color="inherit" size="small" onClick={() => setShowUnsetSections(true)}>
+                                    DETAILS
+                                </Button>
+                            }
+                        >
+                            This store is missing {unsetSections.length} sections.
+                        </Alert>
+                    ) : null}
                 </Paper>
                 <PopUp ref={popup} />
                 <Button type="submit" color="primary" variant="contained">
@@ -114,6 +134,23 @@ const StoreAddOrEdit = ({ dispatch, isEdit, store, submitChanges }) => {
                     Cancel
                 </Button>
             </Stack>
+            <Dialog
+                maxWidth={'xs'}
+                fullWidth={true}
+                open={showUnsetSections}
+                onClose={() => setShowUnsetSections(false)}
+            >
+                <DialogTitle>Unused Sections in {store.name}</DialogTitle>
+                <DialogContent>
+                    <List sx={{ maxHeight: 200 }}>
+                        {unsetSections.map((section) => (
+                            <ListItem key={section}>
+                                <ListItemText primary={section} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </DialogContent>
+            </Dialog>
         </Container>
     )
 }
