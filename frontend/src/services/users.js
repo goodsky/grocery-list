@@ -56,5 +56,25 @@ const register = async (username, password) => {
     }
 }
 
-const usersService = { getUsers, login, register }
+const updateUser = async ({ id, isAdmin }) => {
+    try {
+        const token = tokenService.getToken()
+        const response = await axios.put(
+            `${baseUrl}/${id}`,
+            { id, isAdmin },
+            { headers: { Authorization: `Bearer ${token}` } }
+        )
+        return {
+            success: true,
+            grocery: response.data,
+        }
+    } catch (error) {
+        console.log('Update user failed', error)
+        return {
+            success: false,
+        }
+    }
+}
+
+const usersService = { getUsers, login, register, updateUser }
 export default usersService

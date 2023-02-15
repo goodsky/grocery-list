@@ -12,6 +12,7 @@ import NavBar from './components/NavBar'
 import NotFound from './pages/NotFound'
 import Register from './pages/Register'
 import tokenService from './services/token'
+import UsersIndex from './pages/UsersIndex'
 
 const jwtKey = 'userJwt'
 
@@ -80,6 +81,7 @@ function App() {
                 <Route path="/stores" element={<StoresIndex />} />
                 <Route path="/stores/add" element={<StoreContainer isEdit={false} />} />
                 <Route path="/stores/edit/:id" element={<StoreContainer isEdit={true} />} />
+                <Route path="/users/" element={<UsersIndex />} />
             </Routes>
         </Container>
     )

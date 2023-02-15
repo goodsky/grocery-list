@@ -72,10 +72,26 @@ const getUserByUsername = async (username) => {
     return convertRowToUser(user)
 }
 
+const updateUser = async (user) => {
+    await init()
+
+    const values = {}
+    if (user.isAdmin !== undefined) values[isAdminColumn] = user.isAdmin
+
+    const wasUpdated = await db.updateSingle(tablename, {
+        values,
+        filters: { [idColumn]: user.id },
+        notFilters: { [usernameColumn]: 'admin' }, // just don't
+    })
+
+    return wasUpdated
+}
+
 module.exports = {
     tablename,
     primaryKey: usernameColumn,
     addUser,
     getUsers,
     getUserByUsername,
+    updateUser,
 }

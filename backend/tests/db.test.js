@@ -182,6 +182,52 @@ describe('PostgreSQL db wrapper', () => {
         assert.equal(result, 1)
     })
 
+    it('should update row with inequality filters', async () => {
+        const queryStub = sinon.stub(pgWrapper, 'query').resolves({ rowCount: 1 })
+        const result = await db.update('testtable', {
+            values: {
+                col1: 'new value',
+            },
+            notFilters: {
+                id: 1,
+                username: 'admin',
+            },
+        })
+
+        assert(queryStub.calledOnce)
+        const queryText = queryStub.getCall(0).args[0]
+        const queryValues = queryStub.getCall(0).args[1]
+        const expectedValues = ['new value', 1, 'admin']
+
+        assert.equal(queryText, 'UPDATE testtable SET col1 = $1 WHERE id != $2 AND username != $3')
+        assert.equal(queryValues.toString(), expectedValues.toString())
+        assert.equal(result, 1)
+    })
+
+    it('should update row with equality and inequality filters', async () => {
+        const queryStub = sinon.stub(pgWrapper, 'query').resolves({ rowCount: 1 })
+        const result = await db.update('testtable', {
+            values: {
+                col1: 'new value',
+            },
+            filters: {
+                id: 42,
+            },
+            notFilters: {
+                username: 'admin',
+            },
+        })
+
+        assert(queryStub.calledOnce)
+        const queryText = queryStub.getCall(0).args[0]
+        const queryValues = queryStub.getCall(0).args[1]
+        const expectedValues = ['new value', 42, 'admin']
+
+        assert.equal(queryText, 'UPDATE testtable SET col1 = $1 WHERE id = $2 AND username != $3')
+        assert.equal(queryValues.toString(), expectedValues.toString())
+        assert.equal(result, 1)
+    })
+
     it('should delete row', async () => {
         const queryStub = sinon.stub(pgWrapper, 'query').resolves({ rowCount: 1 })
         const result = await db.remove('testtable', {

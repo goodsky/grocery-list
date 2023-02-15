@@ -84,4 +84,30 @@ router.post('/login', async (request, response) => {
     response.status(200).json({ ...payload, token })
 })
 
+// PUT /api/users/:id
+router.put('/:id', middleware.tokenAdminRequired, async (request, response) => {
+    const { id } = request.params
+
+    const idInt = parseInt(id, 10)
+    if (!idInt) {
+        response.status(400).json({ error: 'invalid id' })
+        return
+    }
+
+    const { id: idFromBody, isAdmin } = request.body
+    if (idInt !== idFromBody) {
+        response.status(400).json({ error: 'id in body and path do not match' })
+        return
+    }
+    const updatedUser = { id: idInt, isAdmin }
+    const wasUpdated = await userDb.updateUser(updatedUser)
+
+    if (!wasUpdated) {
+        response.sendStatus(404)
+        return
+    }
+
+    response.status(200).json(updatedUser)
+})
+
 module.exports = router

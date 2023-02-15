@@ -95,7 +95,7 @@ const selectSingle = async (tablename, config) => {
 }
 
 const update = async (tablename, config) => {
-    const { values, filters } = config
+    const { values, filters, notFilters } = config
     if (!values) throw new Error('update requires values')
 
     const columns = Object.keys(values)
@@ -106,17 +106,40 @@ const update = async (tablename, config) => {
 
     let query = `UPDATE ${tablename} SET ${setString}`
 
+    let whereClause = ''
+    let paramIndex = columns.length + 1
     if (filters) {
         const filterKeys = Object.keys(filters)
         const filterParams = Object.values(filters)
 
-        const startParamIndex = columns.length + 1
         const filterString = filterKeys
-            .map((key, index) => `${key} = $${index + startParamIndex}`)
+            .map((key, index) => `${key} = $${index + paramIndex}`)
             .reduce((prev, nextFilter) => `${prev} AND ${nextFilter}`)
 
-        query += ` WHERE ${filterString}`
+        whereClause += filterString
+        paramIndex += filterKeys.length
         params = params.concat(filterParams)
+    }
+
+    if (notFilters) {
+        const notFilterKeys = Object.keys(notFilters)
+        const notFilterParams = Object.values(notFilters)
+
+        const notFilterString = notFilterKeys
+            .map((key, index) => `${key} != $${index + paramIndex}`)
+            .reduce((prev, nextFilter) => `${prev} AND ${nextFilter}`)
+
+        if (whereClause) {
+            whereClause += ' AND '
+        }
+
+        whereClause += notFilterString
+        paramIndex += notFilterKeys.length
+        params = params.concat(notFilterParams)
+    }
+
+    if (whereClause) {
+        query += ` WHERE ${whereClause}`
     }
 
     const result = await pgWrapper.query(query, params)

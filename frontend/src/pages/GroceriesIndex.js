@@ -76,6 +76,16 @@ const GroceriesIndex = () => {
                     rowsPerPageOptions={[25]}
                     hideFooterSelectedRowCount
                     onSelectionModelChange={handleSelectionUpdate}
+                    initialState={{
+                        sorting: {
+                            sortModel: [
+                                {
+                                    field: 'id',
+                                    sort: 'asc',
+                                },
+                            ],
+                        },
+                    }}
                 />
             </Box>
             <GroceryDialog

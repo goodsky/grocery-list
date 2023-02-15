@@ -30,6 +30,17 @@ Content-Type: application/json
 GET {{host}}/api/users
 Authorization: Bearer {{token}}
 
+### Modify User
+# @prompt userid
+PUT {{host}}/api/users/{{userid}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "id": "{{userid}}",
+    "isAdmin": true
+}
+
 ### --- GROCERIES -------------------------------------------------------------------
 
 ### Add Grocery
