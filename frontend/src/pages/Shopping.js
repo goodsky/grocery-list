@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
+    Box,
+    Button,
     Checkbox,
+    CircularProgress,
     Container,
     List,
     ListItem,
@@ -24,8 +27,10 @@ const ShoppingPage = () => {
     const [list, setList] = useState(null)
     const [items, setItems] = useState([])
     const [stores, setStores] = useState([])
+    const [isLoaded, setIsLoaded] = useState(false)
 
     const [selectedStoreId, setSelectedStoreId] = useState('')
+    const [selectedDirection, setSelectedDirection] = useState(true) // forwards or backwards
 
     const { id } = useParams()
     const idInt = parseInt(id, 10)
@@ -34,7 +39,6 @@ const ShoppingPage = () => {
         const fetchList = async (id) => {
             const result = await listService.getListById(id, true)
             if (result.success) {
-                console.log('Fetched list', result.list)
                 setList(result.list)
                 setItems(result.list.items)
 
@@ -42,8 +46,9 @@ const ShoppingPage = () => {
                 const storeResults = await Promise.all(storePromises)
                 if (storeResults.every((result) => result.success)) {
                     const stores = storeResults.map((result) => result.store)
-                    console.log('Fetched stores', stores)
+
                     setStores(stores)
+                    setIsLoaded(true)
                     if (stores.length > 0) {
                         setSelectedStoreId(stores[0].id)
                     }
@@ -57,6 +62,10 @@ const ShoppingPage = () => {
 
         fetchList(idInt)
     }, [idInt])
+
+    const handleFlipDirection = () => {
+        setSelectedDirection(!selectedDirection)
+    }
 
     const handleToggleItem = async (toggledItem) => {
         const updatedItem = {
@@ -114,19 +123,28 @@ const ShoppingPage = () => {
             }
         }
 
-        aislesAndItems.sort((a, b) => a.position - b.position)
+        const aisleSort = (a, b) => {
+            // Unknown Aisle should always be sorted at top
+            if (a.id === -1) return -1
+            if (b.id === -1) return 1
+
+            return (a.position - b.position) * (selectedDirection ? 1 : -1)
+        }
+
+        aislesAndItems.sort(aisleSort)
         return aislesAndItems
     }
 
     const selectedStore = stores.find((store) => store.id === selectedStoreId)
     const aislesAndItems = selectedStore ? getAislesAndItemsForStore(selectedStore) : []
 
-    console.log('AislesAndItems', aislesAndItems)
-    return (
-        <Container maxWidth="sm">
-            <Typography variant="h1">Shopping</Typography>
-            <Typography variant="h2">{list ? list.name : ''}</Typography>
-            <Stack direction="row">
+    const pageContent = !isLoaded ? (
+        <Box sx={{ mt: 10, display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress size={100} />
+        </Box>
+    ) : (
+        <Box sx={{ mt: 3 }}>
+            <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
                 <Select
                     value={selectedStoreId}
                     label="Store"
@@ -141,6 +159,13 @@ const ShoppingPage = () => {
                         </MenuItem>
                     ))}
                 </Select>
+                <Button
+                    variant={selectedDirection ? 'outlined' : 'contained'}
+                    color="secondary"
+                    onClick={handleFlipDirection}
+                >
+                    Reverse Aisles
+                </Button>
             </Stack>
             <Paper>
                 <List subheader={<li />}>
@@ -148,7 +173,7 @@ const ShoppingPage = () => {
                         .filter((aisle) => aisle.items.length > 0)
                         .map((aisle) => (
                             <li key={aisle.id}>
-                                <ul>
+                                <ul style={{ paddingInlineStart: 0 }}>
                                     <ListSubheader>{aisle.name}</ListSubheader>
                                     {aisle.items.map((item) => (
                                         <ListItem key={item.id}>
@@ -172,6 +197,14 @@ const ShoppingPage = () => {
                         ))}
                 </List>
             </Paper>
+        </Box>
+    )
+
+    return (
+        <Container maxWidth="sm">
+            <Typography variant="h1">Shopping</Typography>
+            <Typography variant="h2">{list ? list.name : ''}</Typography>
+            {pageContent}
         </Container>
     )
 }
