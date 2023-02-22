@@ -66,7 +66,7 @@ const updateUser = async ({ id, isAdmin }) => {
         )
         return {
             success: true,
-            grocery: response.data,
+            user: response.data,
         }
     } catch (error) {
         console.log('Update user failed', error)
@@ -76,5 +76,18 @@ const updateUser = async ({ id, isAdmin }) => {
     }
 }
 
-const usersService = { getUsers, login, register, updateUser }
+const deleteUser = async ({ id, isDeleted }) => {
+    try {
+        const token = tokenService.getToken()
+        await axios.put(`${baseUrl}/${id}`, { id, isDeleted }, { headers: { Authorization: `Bearer ${token}` } })
+        return { success: true }
+    } catch (error) {
+        console.log('Delete user failed', error)
+        return {
+            success: false,
+        }
+    }
+}
+
+const usersService = { deleteUser, getUsers, login, register, updateUser }
 export default usersService

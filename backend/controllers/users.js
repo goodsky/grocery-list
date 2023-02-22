@@ -60,9 +60,11 @@ router.post('/login', async (request, response) => {
     const user = await userDb.getUserByUsername(username)
     if (!user) {
         logger.warn('Login attempt for non-existent user', username)
+    } else if (user.isDeleted) {
+        logger.warn('Login attempt for deleted user', username)
     }
 
-    const passwordsMatch = user && (await bcrypt.compare(password, user.passwordHash))
+    const passwordsMatch = user && !user.isDeleted && (await bcrypt.compare(password, user.passwordHash))
     if (!user || !passwordsMatch) {
         response.status(401).json({ error: 'username or password is incorrect' })
         return
@@ -94,12 +96,18 @@ router.put('/:id', middleware.tokenAdminRequired, async (request, response) => {
         return
     }
 
-    const { id: idFromBody, isAdmin } = request.body
+    const { id: idFromBody, isAdmin, isDeleted } = request.body
     if (idInt !== idFromBody) {
         response.status(400).json({ error: 'id in body and path do not match' })
         return
     }
-    const updatedUser = { id: idInt, isAdmin }
+
+    if (isAdmin === undefined && isDeleted === undefined) {
+        response.status(400).json({ error: 'no values were provided' })
+        return
+    }
+
+    const updatedUser = { id: idInt, isAdmin, isDeleted }
     const wasUpdated = await userDb.updateUser(updatedUser)
 
     if (!wasUpdated) {

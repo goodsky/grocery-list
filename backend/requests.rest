@@ -37,8 +37,8 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "id": "{{userid}}",
-    "isAdmin": true
+    "id": {{userid}},
+    "isDeleted": true
 }
 
 ### --- GROCERIES -------------------------------------------------------------------

@@ -6,6 +6,7 @@ const usernameColumn = 'username'
 const passwordHashColumn = 'passwordhash'
 const isAdminColumn = 'admin'
 const joinedDateColumn = 'joined'
+const isDeletedColumn = 'isdeleted'
 
 let hasInit = false
 const init = async () => {
@@ -16,6 +17,7 @@ const init = async () => {
             [passwordHashColumn]: 'TEXT',
             [joinedDateColumn]: 'TIMESTAMP WITH TIME ZONE',
             [isAdminColumn]: 'BOOLEAN',
+            [isDeletedColumn]: 'BOOLEAN',
         })
 
         hasInit = true
@@ -27,13 +29,19 @@ const convertRowToUser = (row) => {
         return null
     }
 
-    return {
+    const user = {
         id: row[idColumn],
         username: row[usernameColumn],
         passwordHash: row[passwordHashColumn],
         joinedDate: row[joinedDateColumn],
         isAdmin: row[isAdminColumn],
     }
+
+    if (row[isDeletedColumn] !== null) {
+        user.isDeleted = row[isDeletedColumn]
+    }
+
+    return user
 }
 
 const addUser = async (user) => {
@@ -56,8 +64,9 @@ const getUsers = async () => {
     await init()
 
     const users = await db.select(tablename, {
-        columns: [idColumn, usernameColumn, joinedDateColumn, isAdminColumn],
+        columns: [idColumn, usernameColumn, joinedDateColumn, isAdminColumn, isDeletedColumn],
     })
+
     return users.map((row) => convertRowToUser(row))
 }
 
@@ -65,7 +74,7 @@ const getUserByUsername = async (username) => {
     await init()
 
     const user = await db.selectSingle(tablename, {
-        columns: [idColumn, usernameColumn, passwordHashColumn, joinedDateColumn, isAdminColumn],
+        columns: [idColumn, usernameColumn, passwordHashColumn, joinedDateColumn, isAdminColumn, isDeletedColumn],
         filters: { [usernameColumn]: username },
     })
 
@@ -77,6 +86,7 @@ const updateUser = async (user) => {
 
     const values = {}
     if (user.isAdmin !== undefined) values[isAdminColumn] = user.isAdmin
+    if (user.isDeleted !== undefined) values[isDeletedColumn] = user.isDeleted
 
     const wasUpdated = await db.updateSingle(tablename, {
         values,

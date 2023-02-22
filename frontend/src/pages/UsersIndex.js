@@ -18,7 +18,8 @@ const UsersIndex = () => {
             if (response.success) {
                 console.log(`Loaded users`, response.users)
 
-                setUsers(response.users)
+                const activeUsers = response.users.filter((user) => !user.isDeleted)
+                setUsers(activeUsers)
             } else {
                 console.error('Failed to load users')
             }
@@ -37,7 +38,15 @@ const UsersIndex = () => {
         setUsers(users.map((x) => (x.id === user.id ? { ...user, isAdmin: newIsAdmin } : x)))
     }
 
-    const deleteAccount = (user) => {}
+    const deleteAccount = async (user) => {
+        if (user.username === 'admin') {
+            console.warn('Cannot delete admin user')
+            return
+        }
+
+        await usersService.deleteUser({ id: user.id, isDeleted: true })
+        setUsers(users.filter((x) => x.id !== user.id))
+    }
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 90 },
